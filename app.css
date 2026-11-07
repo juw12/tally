@@ -97,6 +97,8 @@ main { max-width: 640px; margin: 0 auto; padding: 0 20px 24px; }
 .budget-line .row-top { display: flex; justify-content: space-between; font-size: 14px; }
 .budget-line .row-top span:last-child { color: var(--muted); }
 .budget-line .note { font-size: 12px; color: var(--muted); margin-top: 8px; }
+.budget-line .note + .note { margin-top: 4px; }
+.budget-line .note .neg { color: var(--negative); font-weight: 600; }
 .meter { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-top: 8px; position: relative; }
 .meter i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
 .meter i.over { background: var(--negative); }
@@ -137,6 +139,7 @@ main { max-width: 640px; margin: 0 auto; padding: 0 20px 24px; }
   background: var(--surface); font-size: 15px; outline: none;
 }
 .field:focus { border-color: var(--accent); }
+.budget-row .field:placeholder-shown:not(:focus) { border-style: dashed; }
 select.field { width: auto; }
 .summary-line { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-top: 14px; }
 
@@ -144,7 +147,10 @@ select.field { width: auto; }
 .empty strong { display: block; color: var(--text); font-size: 16px; margin-bottom: 4px; }
 
 /* settings + budgets */
-.setting { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; min-height: 50px; }
+.setting { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 12px 14px; min-height: 50px; }
+.setting > label { flex: 1 1 auto; min-width: 0; }
+.setting > label:not(:has(.hint)) { white-space: nowrap; }
+.setting > select.field { margin-left: auto; max-width: 100%; }
 .setting label, .setting .label { font-size: 15px; }
 .setting .hint { display: block; font-size: 12px; color: var(--muted); }
 .setting input.field { width: 130px; text-align: right; padding: 7px 10px; }
@@ -245,7 +251,9 @@ select.field { width: auto; }
 .bg-label span { color: var(--text); font-weight: 600; margin-left: 4px; }
 .swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; justify-items: center; }
 .bg-swatch { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line-strong); display: grid; place-items: center; color: var(--muted); background: var(--surface); }
+.bg-swatch { position: relative; }
 .bg-swatch.on { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent); }
+.bg-swatch.on::after { content: ""; position: absolute; right: -4px; bottom: -4px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 12px no-repeat; box-shadow: 0 0 0 2px var(--surface); }
 .bg-swatch-transparent { background: repeating-conic-gradient(#cfcfcf 0 25%, #ffffff 0 50%) 0 0 / 12px 12px; }
 .share-preview canvas.is-transparent { background: repeating-conic-gradient(#7d7d7d 0 25%, #666666 0 50%) 0 0 / 16px 16px; }
 .share-preview canvas.is-transparent.ink-dark { background: repeating-conic-gradient(#e6e6e6 0 25%, #ffffff 0 50%) 0 0 / 16px 16px; }
@@ -255,6 +263,9 @@ select.field { width: auto; }
 .switch:checked { background: var(--accent); }
 .switch:checked::after { transform: translateX(20px); }
 .share-preview { display: grid; place-items: center; margin: 14px 0; }
-.share-preview canvas { max-width: 100%; max-height: 46vh; width: auto; height: auto; border-radius: 10px; border: 1px solid var(--line); }
-.share-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.share-preview canvas { max-width: 100%; max-height: clamp(220px, calc(100vh - 540px), 46vh); max-height: clamp(220px, calc(100dvh - 540px), 46vh); width: auto; height: auto; border-radius: 10px; border: 1px solid var(--line); }
+.share-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  position: sticky; bottom: calc(-20px - env(safe-area-inset-bottom)); z-index: 1; background: var(--surface);
+  margin: 0 -20px calc(-20px - env(safe-area-inset-bottom)); padding: 12px 20px calc(20px + env(safe-area-inset-bottom));
+  box-shadow: 0 -1px 0 var(--line); }
 .btn.secondary { border: 1px solid var(--line-strong); color: var(--text); }

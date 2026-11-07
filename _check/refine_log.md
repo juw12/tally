@@ -16,3 +16,23 @@ Self-judged soft scores (strict, from contact sheets sheet-v0.png vs sheet-r1.pn
 
 Below 10 because: live speech recognition and the native share sheet are untested on real iOS/Android devices;
 Indonesian settings labels wrap to two lines at 390 px; per-expense currencies (travel) not supported.
+
+
+## Pass 2 (2026-11-07) - after Strava-style backgrounds (main 8db9046), branch design/tally-2026-11-07
+
+External judge: opencode Pega-Vision, blind pairwise on 12-screen contact sheets (candidate position alternated from round 3).
+Keep rule: same-run gain >= 0.3 AND pairwise win. Stop: rubric met, 2 stalls, or 5 rounds.
+
+| round | change | gates | judge (candidate vs compared) | pairwise | kept? | note |
+|---|---|---|---|---|---|---|
+| base | main 8db9046 (8 backgrounds, transparent sticker, photo) | all pass (shoot_share fixed for [data-bg]; 24/24 share checks) | 8.20 single | - | - | baseline |
+| 1 | sticky share actions; settings rows wrap (no label wrap); full amounts < 10,000; live "No amount found" hint | all pass | 7.85 vs 7.60 (base) | win | no (+0.25) | stalls 1; carried into r2 |
+| 2 | r1 + budget month-end projection (EN/ID/zh-Hant/zh-Hans); share preview sized to fit above buttons | all pass, round-2 gates 12/12 | 7.90 vs 6.85 (base) | win | yes (+1.05) | stalls reset |
+| 3 | fix r1 regression (typing blanked "Listening"); projection neutral ink, only overage red; check badge on selected background | all pass, 15/15 | 7.45 vs 7.20 (r2) | win | carried as fix (+0.25 < 0.3) | stalls 1; bug fix + strict superset, no sub-score dropped |
+| 4 | "Set limit" action placeholder in dashed field for unset category budgets; "37% - 6 expenses" | all pass, 17/17 | 8.05 vs 8.05 (r3) | win (tie on score) | carried (labels only) | stalls 2 -> stop (plateau) |
+
+Result: plateau at round 4. Rubric v1 not met on the external judge (best same-run weighted 8.05 < 8.5); all hard gates pass.
+Objective: share buttons visible 0/9 -> 9/9 phone/language combos; wrapped setting labels 6 -> 0; G1 0 failing screens of 77.
+Judge items not done (redesign scope or not factual): bigger share preview (conflicts with buttons-visible gate), mic level animation,
+inline edit of parsed rows, suggested category limits, chart value labels. Seen in scrolled screenshot: budget card passes under the sticky header.
+Untested: real-phone voice and native share; transparent PNG in iOS/Instagram.

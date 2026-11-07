@@ -52,8 +52,23 @@ def save_card(page, name):
 
 
 def pick(page, group, value):
-    page.click(f"[data-share={group}] [data-value={value}]")
+    # Backgrounds moved from a segmented control to a swatch picker (data-bg).
+    if group == "theme":
+        page.click(f"[data-bg={value}]")
+    else:
+        page.click(f"[data-share={group}] [data-value={value}]")
     page.wait_for_timeout(80)
+
+
+def card_alpha_range(page):
+    """(min, max) alpha over the four corners and the centre of the current card."""
+    return page.evaluate("""() => {
+        const c = document.querySelector('#shareCanvas');
+        const ctx = c.getContext('2d');
+        const points = [[2, 2], [c.width - 3, 2], [2, c.height - 3], [c.width - 3, c.height - 3], [c.width / 2, c.height / 2]];
+        const alphas = points.map(([x, y]) => ctx.getImageData(x, y, 1, 1).data[3]);
+        return [Math.min(...alphas), Math.max(...alphas)];
+    }""")
 
 
 with sync_playwright() as p:
@@ -78,8 +93,38 @@ with sync_playwright() as p:
         pick(page, "theme", theme)
         save_card(page, f"{kind}-{fmt}-{theme}")
     check("square card is 1080x1080", page.evaluate("[shareCanvas.width, shareCanvas.height]") == [1080, 1080])
+    # Every background renders; flat/gradient cards are opaque, the sticker is see-through.
     pick(page, "kind", "month")
     pick(page, "format", "story")
+    for background in ["light", "dark", "navy", "forest", "clay", "sand", "dusk", "ember"]:
+        pick(page, "theme", background)
+        save_card(page, f"month-story-{background}")
+        check(f"{background} card is opaque", card_alpha_range(page)[0] == 255)
+    pick(page, "theme", "transparent")
+    save_card(page, "month-story-transparent")
+    check("transparent card has see-through corners", card_alpha_range(page)[0] == 0)
+    check("text colour toggle shown for transparent", page.is_visible("#shareInkRow"))
+    pick(page, "ink", "dark")
+    save_card(page, "month-story-transparent-dark")
+    pick(page, "ink", "light")
+    pick(page, "theme", "ember")
+    pick(page, "format", "square")
+    save_card(page, "month-square-ember")
+    check("text colour toggle hidden for colours", not page.is_visible("#shareInkRow"))
+    pick(page, "format", "story")
+
+    # Your photo: a picked image becomes the background and is never stored.
+    from PIL import Image
+    photo_path = OUT / "test-photo.jpg"
+    Image.new("RGB", (900, 1200), (210, 150, 90)).save(photo_path)
+    with page.expect_file_chooser() as chooser:
+        page.click("[data-bg=photo]")
+    chooser.value.set_files(str(photo_path))
+    page.wait_for_timeout(400)
+    save_card(page, "month-story-photo")
+    check("photo background selected", page.evaluate("store.settings.share.theme") == "photo")
+    check("photo is not written to storage", "data:image" not in page.evaluate("localStorage.getItem('tally.settings.v1') || ''"))
+
     pick(page, "theme", "light")
     page.check("#shareHide")
     page.wait_for_timeout(80)

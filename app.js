@@ -106,6 +106,9 @@ function money(value, options = {}) {
 }
 
 function compactMoney(value) {
+  if (Math.abs(value) < 10000) {
+    return money(Math.round(value), { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
   try {
     return new Intl.NumberFormat(locale(), {
       style: "currency",
@@ -288,12 +291,21 @@ function budgetSummaryHtml(current) {
   } else {
     note = t("finishedUnder", { amount: money(remaining) });
   }
+  // Month-end projection from the pace so far (needs a few days of data to mean anything).
+  let paceNote = "";
+  if (remaining >= 0 && current.isCurrent && current.elapsed >= 3) {
+    const whole = { maximumFractionDigits: 0, minimumFractionDigits: 0 };
+    const projected = (current.total / current.elapsed) * current.spanDays;
+    paceNote = projected > budget
+      ? `<div class="note warn">${t("paceOver", { amount: money(projected, whole), over: `<span class="neg">${money(projected - budget, whole)}</span>` })}</div>`
+      : `<div class="note">${t("paceUnder", { amount: money(projected, whole) })}</div>`;
+  }
   return `<div class="block">
     <div class="block-head"><h2>${t("budget")}</h2><button class="link" data-goto="budgets">${t("edit")}</button></div>
     <div class="panel budget-line">
       <div class="row-top num"><span>${t("ofBudget", { spent: money(current.total), budget: money(budget) })}</span><span>${Math.round(used * 100)}%</span></div>
       <div class="meter"><i class="${used > 1 ? "over" : ""}" style="width:${Math.min(used, 1) * 100}%"></i>${current.isCurrent ? `<b style="left:${pace * 100}%"></b>` : ""}</div>
-      <div class="note">${note}</div>
+      <div class="note">${note}</div>${paceNote}
     </div>
   </div>`;
 }
@@ -380,7 +392,7 @@ function categoriesHtml(current) {
       <span class="swatch" style="background:${color}"></span>
       <span class="name">${catName(cat)}</span>
       <span class="amount num">${money(total)}</span>
-      <span class="share num"><span class="meter"><i style="width:${share * 100}%;background:${color}"></i></span>${(share * 100).toFixed(0)}% · ${counts[cat]}</span>
+      <span class="share num"><span class="meter"><i style="width:${share * 100}%;background:${color}"></i></span>${(share * 100).toFixed(0)}% · ${counts[cat] === 1 ? t("expense") : t("expenses", { n: counts[cat] })}</span>
     </button>`;
   }).join("");
   return `<div class="block"><div class="block-head"><h2>${t("categories")}</h2></div><div class="panel rows">${rows}</div></div>`;
@@ -489,7 +501,7 @@ function renderBudgets() {
       <div class="top">
         <span class="swatch" style="background:${CATEGORY_COLORS[cat]}"></span>
         <span class="name">${catName(cat)}</span>
-        <input class="field num" inputmode="decimal" placeholder="${t("noLimit")}" data-budget="${cat}" value="${store.settings.budgets[cat] || ""}">
+        <input class="field num" inputmode="decimal" placeholder="${t("setLimit")}" data-budget="${cat}" value="${store.settings.budgets[cat] || ""}">
       </div>
       ${statusHtml(spentBy[cat] || 0, store.settings.budgets[cat] || 0)}
     </div>`).join("");
@@ -799,6 +811,14 @@ function openRecorder() {
   }
 }
 
+// What the status line says when there is nothing to warn about.
+function recorderIdleStatus() {
+  if (recognizer) {
+    return t("listening");
+  }
+  return Recognition ? "" : t("useKeyboardMic");
+}
+
 function showHeard(text, fromVoice) {
   const transcript = $("#recText");
   const preview = $("#recPreview");
@@ -811,6 +831,10 @@ function showHeard(text, fromVoice) {
   }
   const parsed = text ? parseExpenses(text) : [];
   preview.hidden = !parsed.length;
+  const status = $("#recStatus");
+  if (!fromVoice && status) {
+    status.textContent = text.trim().length > 2 && !parsed.length ? t("noAmount") : recorderIdleStatus();
+  }
   preview.innerHTML = parsed.map((e) => `<div class="tx">${markHtml(e)}
       <span class="body"><div class="title">${escapeHtml(e.desc)}</div><div class="sub">${catName(e.cat)} · ${dayLabel(e.date)}</div></span>
       <span class="amount num">${money(e.amount)}</span></div>`).join("");

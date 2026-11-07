@@ -3,3 +3,6 @@ _check/audit-*/
 _check/cards/
 _check/judge*
 _check/__pycache__/
+_check/*.jpg
+_check/logs-*/
+_check/measure-*/
