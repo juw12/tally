@@ -34,9 +34,14 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
         pass
 
 
-server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(APP)))
-threading.Thread(target=server.serve_forever, daemon=True).start()
-URL = f"http://127.0.0.1:{server.server_port}/index.html"
+# `python gates_round5.py live` runs the same checks against the deployed site through the corporate proxy.
+if len(sys.argv) > 1 and sys.argv[1] == "live":
+    URL = f"https://juw12.github.io/tally/?cb={int(__import__('time').time())}"
+    LOOPBACK = {"server": "http://proxy8.intra:80"}
+else:
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(APP)))
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    URL = f"http://127.0.0.1:{server.server_port}/index.html"
 
 today = date.today()
 seed_expenses = [
