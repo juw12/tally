@@ -240,7 +240,7 @@ select.field { width: auto; }
   border: 1px solid var(--line-strong); color: var(--accent);
 }
 .mic svg { width: 28px; height: 28px; }
-.mic.live { background: var(--accent); color: var(--bg); border-color: var(--accent); box-shadow: 0 0 0 6px var(--accent-soft); }
+.mic.live { background: var(--accent); color: var(--bg); border-color: var(--accent); box-shadow: 0 0 0 calc(6px + var(--level, 0) * 14px) var(--accent-soft); transition: box-shadow .08s linear; }
 .mic { position: relative; }
 .mic.live::before, .mic.live::after {
   content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--accent);

@@ -82,6 +82,12 @@ window.SpeechRecognition = FakeRecognition;
 window.webkitSpeechRecognition = FakeRecognition;
 """
 
+# These gates cover the browser's own speech engine. Hiding getUserMedia turns off Tally's recorder
+# (iPhone default since v14), which gates_voice.py tests separately with a real audio file.
+NO_RECORDER = """
+try { Object.defineProperty(navigator, 'mediaDevices', { value: undefined, configurable: true }); } catch (e) {}
+"""
+
 # Records whether navigator.share() ran inside the tap's click handler.
 SHARE_SPY = """
 window.__inClick = false;
@@ -112,6 +118,7 @@ def run(browser, device, label):
     context = browser.new_context(**device, service_workers="block", locale="en-US", accept_downloads=True)
     context.add_init_script(SEED)
     context.add_init_script(FAKE_SPEECH)
+    context.add_init_script(NO_RECORDER)
     context.add_init_script(SHARE_SPY)
     page = context.new_page()
     errors = []

@@ -1,0 +1,25 @@
+name = "tally-api"
+main = "worker.js"
+compatibility_date = "2025-09-01"
+
+# Workers AI (Whisper large-v3-turbo) for voice entry when the phone has no working speech service.
+[ai]
+binding = "AI"
+
+# Per-IP limit: 12 voice notes per minute.
+[[ratelimits]]
+name = "LIMITER"
+namespace_id = "7011"
+simple = { limit = 12, period = 60 }
+
+# Approximate daily counter for the safety cap below.
+[[kv_namespaces]]
+binding = "COUNTS"
+id = "9b2724c3fca2465897869f0a16ede7fa"
+
+[vars]
+ALLOWED_ORIGINS = "https://juw12.github.io,http://127.0.0.1:8765,http://localhost:8765"
+DAILY_LIMIT = "3000"
+
+[observability]
+enabled = true
