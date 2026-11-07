@@ -219,6 +219,12 @@ function micGlyph(ctx, x, y, size, color) {
 
 const plainMoney = (value) => money(Math.round(value), { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
+// Full grouped amount (NT$12,340 / Rp 1.250.000) when it fits; compact (NT$12.3K) only when it would collide.
+function cardAmount(ctx, value, maxWidth) {
+  const full = plainMoney(value);
+  return ctx.measureText(full).width <= maxWidth ? full : compactMoney(value);
+}
+
 // ---------- Visuals ----------
 function drawMonthTrail(ctx, data, box, theme, hide) {
   const points = data.series.filter((p) => !p.future);
@@ -328,7 +334,7 @@ function drawWeekBars(ctx, data, box, theme, hide) {
       ctx.fillStyle = theme.text;
       ctx.font = cardFont(600, 24);
       ctx.textAlign = "center";
-      ctx.fillText(compactMoney(v.value), bx + barWidth / 2, by - 14);
+      ctx.fillText(cardAmount(ctx, v.value, barWidth + 24), bx + barWidth / 2, by - 14);
     }
     ctx.fillStyle = theme.muted;
     ctx.font = cardFont(500, 26);
@@ -607,6 +613,13 @@ function openShare() {
       <h3>${t("shareTitle")}</h3>
       <span style="width:48px"></span>
     </div>
+    <!-- Preview first: the card is the point of this sheet, the controls tune it below. -->
+    <div class="share-preview">
+      <canvas id="shareCanvas"></canvas>
+      <button class="preview-expand" id="sharePreviewOpen" aria-label="${t("enlargePreview")}">
+        <svg viewBox="0 0 24 24"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>
+      </button>
+    </div>
     <div class="share-controls">
       ${segment("kind", [["day", t("day")], ["week", t("week")], ["month", t("month")]])}
       ${segment("format", [["story", t("story")], ["square", t("square")]])}
@@ -620,12 +633,6 @@ function openShare() {
         ${segment("ink", [["light", t("light")], ["dark", t("dark")]])}
       </div>
       <label class="switch-row"><span>${t("hideAmounts")}</span><input type="checkbox" class="switch" id="shareHide" ${options.hideAmounts ? "checked" : ""}></label>
-    </div>
-    <div class="share-preview">
-      <canvas id="shareCanvas"></canvas>
-      <button class="preview-expand" id="sharePreviewOpen" aria-label="${t("enlargePreview")}">
-        <svg viewBox="0 0 24 24"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>
-      </button>
     </div>
     <div class="share-actions">
       <button class="btn secondary" id="shareSave">${t("saveImage")}</button>

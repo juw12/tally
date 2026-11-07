@@ -168,7 +168,7 @@ with sync_playwright() as playwright:
     }""")
     preview_height = page.evaluate("document.querySelector('#shareCanvas').getBoundingClientRect().height")
     check(f"full-size preview is much larger than the thumbnail ({image} vs {preview_height:.0f}px)",
-          image and image["natural"] > 0 and image["h"] > preview_height * 1.8)
+          image and image["natural"] > 0 and image["h"] > preview_height * 1.15)  # v14: thumbnail is ~400px now (preview-first sheet), lightbox still larger
     page.keyboard.press("Escape")
     check("Escape closes the full-size preview", page.locator(".lightbox").count() == 0)
     check("share buttons still visible with the expand control", page.evaluate("""() => {

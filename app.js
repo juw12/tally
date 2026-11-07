@@ -152,7 +152,7 @@ function byNewest(a, b) {
 function markHtml(expense) {
   const color = CATEGORY_COLORS[expense.cat] || CATEGORY_COLORS.Other;
   const letter = escapeHtml([...(expense.desc || catName(expense.cat)).trim()][0].toUpperCase());
-  return `<span class="mark" style="color:${color};background:color-mix(in srgb, ${color} 14%, transparent)">${letter}</span>`;
+  return `<span class="mark" style="--mark:${color}">${letter}</span>`;
 }
 
 function txRowHtml(expense, showDate = false) {
@@ -490,9 +490,17 @@ function renderTransactionList() {
   }
   items.sort(byNewest);
 
-  const scope = ui.day ? dayLabel(ui.day) : ui.query ? t("allTime") : periodLabel(ui.period, range);
+  const scope = [
+    ui.category ? catName(ui.category) : "",
+    ui.day ? dayLabel(ui.day) : ui.query ? t("allTime") : periodLabel(ui.period, range),
+  ].filter(Boolean).join(" · ");
   const count = items.length === 1 ? t("expense") : t("expenses", { n: items.length });
   let html = ui.day ? `<button class="filter-chip" data-clear-day>${dayLabel(ui.day)} · ${t("showAll")}</button>` : "";
+  // Drilled in from an Overview category: say so, and offer one tap back to everything.
+  if (ui.category) {
+    const color = CATEGORY_COLORS[ui.category] || CATEGORY_COLORS.Other;
+    html += `<button class="filter-chip" data-clear-cat><span class="swatch" style="background:${color}"></span>${catName(ui.category)} · ${t("showAll")}</button>`;
+  }
   html = justAddedHtml() + html;
   html += `<div class="summary-line num"><span>${scope} · ${count}</span><span>${money(sum(items))}</span></div>`;
   if (!items.length) {
@@ -1217,7 +1225,7 @@ $("#recordButton").onclick = openRecorder;
 $("#shareButton").onclick = () => openShare();
 
 document.addEventListener("click", (event) => {
-  const target = event.target.closest("[data-edit],[data-goto],[data-cat],[data-close],[data-day],[data-clear-day]");
+  const target = event.target.closest("[data-edit],[data-goto],[data-cat],[data-close],[data-day],[data-clear-day],[data-clear-cat]");
   if (!target) {
     return;
   }
@@ -1228,6 +1236,9 @@ document.addEventListener("click", (event) => {
     goTo("transactions");
   } else if (target.hasAttribute("data-clear-day")) {
     ui.day = null;
+    render();
+  } else if (target.hasAttribute("data-clear-cat")) {
+    ui.category = "";
     render();
   } else if (target.dataset.edit) {
     openEditor(target.dataset.edit);

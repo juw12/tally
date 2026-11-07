@@ -12,6 +12,8 @@
   --negative: #a8321e;
   --positive: #2f6b45;
   --radius: 10px;
+  --row-line: var(--line);
+  --mark-tint: 14%;
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color-scheme: light;
 }
@@ -30,6 +32,9 @@
     --bar: #36404b;
     --negative: #e07a63;
     --positive: #7fbf93;
+    /* Row dividers and letter marks need more contrast on a near-black panel. */
+    --row-line: #333331;
+    --mark-tint: 24%;
     color-scheme: dark;
   }
 }
@@ -121,13 +126,15 @@ main { max-width: 640px; margin: 0 auto; padding: 0 20px 24px; }
 .chart .bar { fill: var(--accent); cursor: pointer; }
 .chart .bar:hover { opacity: .8; }
 .filter-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 12px; border-radius: 17px; background: var(--accent-soft); color: var(--accent); font-size: 13px; font-weight: 600; margin-top: 14px; }
+.filter-chip .swatch { flex: none; }
+.filter-chip + .filter-chip { margin-left: 8px; }
 .chart .bar.zero { fill: var(--line-strong); }
 .chart .bar.future { fill: var(--line); }
 .chart .avg { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
 .chart .legend { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); padding: 6px 4px 0; }
 
 /* category / list rows */
-.rows > * + * { border-top: 1px solid var(--line); }
+.rows > * + * { border-top: 1px solid var(--row-line); }
 .cat-row { display: grid; grid-template-columns: 10px 1fr auto; gap: 4px 12px; align-items: center; padding: 12px 14px; width: 100%; text-align: left; }
 .swatch { width: 10px; height: 10px; border-radius: 2px; }
 .cat-row .name { font-size: 15px; }
@@ -135,14 +142,14 @@ main { max-width: 640px; margin: 0 auto; padding: 0 20px 24px; }
 .cat-row .share { grid-column: 2 / 4; display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
 .cat-row .share .meter { flex: 1; margin: 0; height: 4px; }
 
-.tx { display: flex; align-items: center; gap: 12px; padding: 12px 14px; width: 100%; text-align: left; }
-.tx .mark { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; }
+.tx { display: flex; align-items: center; gap: 12px; padding: 13px 14px; min-height: 58px; width: 100%; text-align: left; }
+.tx .mark { color: var(--mark); background: color-mix(in srgb, var(--mark) var(--mark-tint), transparent); width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; }
 .tx .body { flex: 1; min-width: 0; }
 .tx .title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tx .sub { font-size: 12px; color: var(--muted); }
+.tx .sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
 .tx .amount { font-weight: 600; }
 
-.day-head { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); font-weight: 600; margin: 22px 2px 8px; text-transform: uppercase; letter-spacing: .05em; }
+.day-head { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); font-weight: 600; margin: 24px 2px 8px; text-transform: uppercase; letter-spacing: .05em; }
 
 .toolbar { display: flex; gap: 8px; margin-top: 18px; }
 .field {
@@ -310,8 +317,8 @@ select.field { width: auto; }
 .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
 .switch:checked { background: var(--accent); }
 .switch:checked::after { transform: translateX(20px); }
-.share-preview { display: grid; place-items: center; margin: 14px 0; }
-.share-preview canvas { max-width: 100%; max-height: clamp(220px, calc(100vh - 540px), 46vh); max-height: clamp(220px, calc(100dvh - 540px), 46vh); width: auto; height: auto; border-radius: 10px; border: 1px solid var(--line); }
+.share-preview { display: grid; place-items: center; margin: 4px 0 16px; }
+.share-preview canvas { max-width: 100%; max-height: clamp(260px, calc(100vh - 330px), 60vh); max-height: clamp(260px, calc(100dvh - 330px), 60vh); width: auto; height: auto; border-radius: 10px; border: 1px solid var(--line); }
 .share-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
   position: sticky; bottom: calc(-20px - env(safe-area-inset-bottom)); z-index: 1; background: var(--surface);
   margin: 0 -20px calc(-20px - env(safe-area-inset-bottom)); padding: 12px 20px calc(20px + env(safe-area-inset-bottom));
