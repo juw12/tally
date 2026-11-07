@@ -1,0 +1,146 @@
+{
+  "mode": "score",
+  "models": [
+    "Pega-Vision",
+    "Pega-Thinking",
+    "GLM-5.3-Flash"
+  ],
+  "weights": {
+    "S1": 0.25,
+    "S2": 0.25,
+    "S3": 0.2,
+    "S4": 0.15,
+    "S5": 0.15
+  },
+  "judges": {
+    "Pega-Vision": {
+      "seconds": 18.2,
+      "scores": {
+        "S1": 8.0,
+        "S2": 9.0,
+        "S3": 9.0,
+        "S4": 9.0,
+        "S5": 8.0
+      },
+      "total": 8.6,
+      "evidence": {
+        "S1": "Overview light/dark use the same card grid and tab bar; localized screens preserve alignment.",
+        "S2": "Status reads 'Listening - 2 found' while speaking; toast offers Edit and Undo.",
+        "S3": "Tapping a chart bar opens that day's expenses; budget card shows projection and per-day allowance.",
+        "S4": "Story card shows total, comparison, budget pace, stats and categories with clear hierarchy.",
+        "S5": "CSV export, JSON backup/restore, last-backup date, storage-full warning."
+      },
+      "fixes": [
+        "Add visible empty, offline, parse-error, and storage-full states with recovery actions such as retry, restore backup, and manual entry.",
+        "Improve share card legibility: make the chart and budget-pace line clearer, add optional category detail, and verify Square, transparent, and photo modes are equally polished.",
+        "Tighten visual polish: increase chart label contrast/size, reduce dense settings instructions, and check localized strings for crowding in controls and cards."
+      ]
+    },
+    "Pega-Thinking": {
+      "seconds": 13.0,
+      "scores": {
+        "S1": 8.0,
+        "S2": 10.0,
+        "S3": 10.0,
+        "S4": 9.0,
+        "S5": 10.0
+      },
+      "total": 9.35,
+      "evidence": {
+        "S1": "Clean hierarchy with prominent totals, consistent light/dark, proper localization (EN/ID/ZH); minor rough edges in activity list density and share sheet control clutter",
+        "S2": "'Tap the mic and say lunch 120 and taxi 250 yesterday: both expenses are parsed live and saved when you stop talking; a toast offers Edit and Undo' plus live row editing and 'No amount found' immediate feedback",
+        "S3": "Totals with vs-last-month delta, budget card with per-day allowance and month-end projection, peak/average labelled chart, category percentages, drill-down on bar tap, budget pace line on share card",
+        "S4": "Story card (1080x1920) is poster-grade with bold NT$3,950, budget pace line, stats grid, category bars; day/week/month, Story/Square, 8 backgrounds, transparent PNG sticker, Hide amounts, full-size preview",
+        "S5": "'Works offline (service worker), CSV export, JSON backup/restore, last-backup date, storage-full warning, persistent storage request'; 'No amount found' error state; 'Accessibility audit over 77 screens: 0 failures'"
+      },
+      "fixes": [
+        "Reduce density in Activity list rows - category labels and amounts feel cramped at 390px; increase row padding or font size for better scannability",
+        "Simplify the Share sheet control layout - the stacked Background/Sticker/Hide amounts/Save image controls compete for attention; group into clearer sections or use a stepper pattern",
+        "Add visible empty/zero states for the Spending by day chart and Categories list so first-time users see guidance instead of blank or near-empty visuals"
+      ]
+    },
+    "GLM-5.3-Flash": {
+      "seconds": 64.7,
+      "scores": {
+        "S1": 8.0,
+        "S2": 9.0,
+        "S3": 9.0,
+        "S4": 9.0,
+        "S5": 8.0
+      },
+      "total": 8.6,
+      "evidence": {
+        "S1": "Clean, consistent type/spacing across light, dark, ZH and ID screens; nits: clipped 'BUDGET' header behind the record-sheet scrim and a very small share-preview card with ambiguous 'Background Light' label.",
+        "S2": "'both expenses are parsed live and saved when you stop talking; a toast offers Edit and Undo', rows 'can be tapped to change category or amount, or removed, before Save' — but correction/undo live only in a transient toast.",
+        "S3": "'$669 per day available for the remaining 24 days… $9,159 over budget' (pace), '+100% vs same point last month' (comparison), 'Tap a bar to see that day' (drill-down), categories with '37% · 6 expenses' — all 10-anchor elements present, but only one comparison basis and no multi-month trend.",
+        "S4": "Story card is poster-grade: clear hierarchy (NT$3,950 hero), labeled 'Budget pace' line, 2×2 stat grid, category bars, 'Tracked by voice with Tally' footer; only the light Story variant is shown at full size, chart area is sparse.",
+        "S5": "'Works offline (service worker), CSV export, JSON backup/restore, last-backup date, storage-full warning, persistent storage request' plus immediate 'No amount found'; empty/first-run and mic-permission-denied states are not evidenced."
+      },
+      "fixes": [
+        "Show and harden empty/first-run and failure states: brand-new user with no expenses, empty Activity, 'Use suggested' with no tracked past months, and mic permission denied/unavailable fallback.",
+        "Make post-save correction persistent: add a durable 'just logged' review affordance (e.g., saved-rows chip on Overview) so Edit/Undo don't vanish when the toast expires.",
+        "Deepen summaries: add a multi-month trend line and category-level comparison/drill-down (tap a category row for its history), not just day bars and vs-last-month."
+      ]
+    }
+  },
+  "quorum": 3,
+  "council_score": 8.6,
+  "criterion_median": {
+    "S1": 8.0,
+    "S2": 9.0,
+    "S3": 9.0,
+    "S4": 9.0,
+    "S5": 8.0
+  },
+  "criterion_spread": {
+    "S1": 0.0,
+    "S2": 1.0,
+    "S3": 1.0,
+    "S4": 0.0,
+    "S5": 2.0
+  },
+  "split_criteria": [],
+  "judge_total_range": [
+    8.6,
+    9.35
+  ],
+  "fixes": [
+    {
+      "judge": "Pega-Vision",
+      "fix": "Add visible empty, offline, parse-error, and storage-full states with recovery actions such as retry, restore backup, and manual entry."
+    },
+    {
+      "judge": "Pega-Vision",
+      "fix": "Improve share card legibility: make the chart and budget-pace line clearer, add optional category detail, and verify Square, transparent, and photo modes are equally polished."
+    },
+    {
+      "judge": "Pega-Vision",
+      "fix": "Tighten visual polish: increase chart label contrast/size, reduce dense settings instructions, and check localized strings for crowding in controls and cards."
+    },
+    {
+      "judge": "Pega-Thinking",
+      "fix": "Reduce density in Activity list rows - category labels and amounts feel cramped at 390px; increase row padding or font size for better scannability"
+    },
+    {
+      "judge": "Pega-Thinking",
+      "fix": "Simplify the Share sheet control layout - the stacked Background/Sticker/Hide amounts/Save image controls compete for attention; group into clearer sections or use a stepper pattern"
+    },
+    {
+      "judge": "Pega-Thinking",
+      "fix": "Add visible empty/zero states for the Spending by day chart and Categories list so first-time users see guidance instead of blank or near-empty visuals"
+    },
+    {
+      "judge": "GLM-5.3-Flash",
+      "fix": "Show and harden empty/first-run and failure states: brand-new user with no expenses, empty Activity, 'Use suggested' with no tracked past months, and mic permission denied/unavailable fallback."
+    },
+    {
+      "judge": "GLM-5.3-Flash",
+      "fix": "Make post-save correction persistent: add a durable 'just logged' review affordance (e.g., saved-rows chip on Overview) so Edit/Undo don't vanish when the toast expires."
+    },
+    {
+      "judge": "GLM-5.3-Flash",
+      "fix": "Deepen summaries: add a multi-month trend line and category-level comparison/drill-down (tap a category row for its history), not just day bars and vs-last-month."
+    }
+  ],
+  "label": "council-judged (3 judges)"
+}

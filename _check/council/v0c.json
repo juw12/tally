@@ -1,0 +1,146 @@
+{
+  "mode": "score",
+  "models": [
+    "Pega-Vision",
+    "Pega-Thinking",
+    "GLM-5.3-Flash"
+  ],
+  "weights": {
+    "S1": 0.25,
+    "S2": 0.25,
+    "S3": 0.2,
+    "S4": 0.15,
+    "S5": 0.15
+  },
+  "judges": {
+    "Pega-Vision": {
+      "scores": {
+        "S1": 8.0,
+        "S2": 9.0,
+        "S3": 9.0,
+        "S4": 9.0,
+        "S5": 9.0
+      },
+      "evidence": {
+        "S1": "Consistent cards, tabs, and dark/light parity, but the settings screen exposes a raw '127.0.0.1' test URL.",
+        "S2": "Expenses are 'parsed live and saved when you stop talking; a toast offers Edit and Undo.'",
+        "S3": "Includes 'per-day allowance', 'month-end projection', comparisons, and 'Tap a bar to see that day', but no single clear 'how am I doing?' verdict.",
+        "S4": "The full-size Story card is clean and poster-grade, but only one card variant is shown for all modes/themes/languages.",
+        "S5": "Empty states, offline support, CSV/JSON backup, and 'storage-full warning' are present, but recovery from corrupted/failed data is not evidenced."
+      },
+      "fixes": [
+        "Replace the local '127.0.0.1' Siri instructions with production-safe, localized guidance and audit settings for shipped polish.",
+        "Add a prominent Overview verdict that combines budget pace, projection, and comparison into one clear 'how am I doing?' status with drill-down.",
+        "Add visible graceful error/recovery states for voice parsing failures, storage-full, backup restore conflicts, and offline sync issues."
+      ],
+      "total": 8.75,
+      "seconds": 22.1
+    },
+    "Pega-Thinking": {
+      "scores": {
+        "S1": 8.0,
+        "S2": 9.0,
+        "S3": 9.0,
+        "S4": 9.0,
+        "S5": 8.0
+      },
+      "evidence": {
+        "S1": "Light/dark modes are consistent and typography hierarchy is strong ('$9,137' totals, clear labels), but empty states like 'No expenses yet' and 'No expenses in this period' are very sparse with large blank areas, and the Overview screen packs dense info while empty screens feel under-designed.",
+        "S2": "'Tap the mic and say lunch 120 and taxi 250 yesterday: both expenses are parsed live and saved when you stop talking; a toast offers Edit and Undo' plus 'each row can be tapped to change category or amount, or removed, before Save' — essentially one-tap with live feedback, correction, and undo.",
+        "S3": "Totals, '−24% vs same point last month' comparison, category percentages, 'Budget pace' line, per-day allowance, month-end projection, 'Tapping a chart bar opens that day's expenses', and peak/average labels — covers pace, comparisons, and drill-down.",
+        "S4": "Full-size Story card (1080x1920) is poster-grade with clean hierarchy; share sheet offers Day/Week/Month, Story/Square, 8 backgrounds, transparent PNG with light/dark text, 'Hide amounts', and full-size preview on tap.",
+        "S5": "Empty states shown ('No expenses yet' with example prompt), offline via service worker, CSV/JSON export, last-backup date, storage-full warning, persistent storage request, and 'No amount found' error — handles common cases well but error/edge states aren't visually demonstrated beyond empty."
+      },
+      "fixes": [
+        "Empty states are too sparse — 'No expenses yet' and 'No expenses in this period' screens have large blank areas; add illustration, example entries, or a more inviting onboarding prompt to match the polish of populated screens.",
+        "Inconsistent information density across screens — Overview is dense while Activity/Budgets empty states feel under-designed; establish a consistent baseline of helpful content (tips, recent activity, quick-add) for all empty views.",
+        "Share sheet preview in the contact sheet is cramped and hard to evaluate at thumbnail size — the in-app preview tile is small relative to the full-size Story card; enlarge the preview or add a clearer 'tap to expand' affordance so users can judge the output before sharing."
+      ],
+      "total": 8.6,
+      "seconds": 10.5
+    },
+    "GLM-5.3-Flash": {
+      "scores": {
+        "S1": 8.0,
+        "S2": 9.0,
+        "S3": 9.0,
+        "S4": 9.0,
+        "S5": 8.0
+      },
+      "evidence": {
+        "S1": "Consistent type, nav and card system across 12 screens, 3 locales, light+dark. Rough edge: EN budget card reads '$669 per day available for the remaining 24 days' while ZH reads '每天可用 $869' — same data, one locale is wrong; share-sheet preview thumbnail is very small.",
+        "S2": "'saved when you stop talking; a toast offers Edit and Undo'; live 'Listening · 2 found' status with pulsing mic; rows 'tapped to change category or amount, or removed, before Save'. Gap: helper only promises category/amount edits — no date fix for a misheard 'yesterday' pre-save.",
+        "S3": "Budget pace ('At this pace: $39,159 by month end, $9,159 over budget'), comparison ('+100% vs same point last month ($4,570)'), trend chart with 'avg $1,305' / 'Peak $2,070', drill-down ('Tap a bar to see that day'). Docked because the headline per-day allowance figure appears incorrect in EN.",
+        "S4": "Story card is poster-grade: TALLY/NOVEMBER masthead, 'NT$3,950' hero, labeled budget-pace line, 2x2 stat grid, category bars, branded footer. Minor: early-month spend line hugs the bottom-left, leaving most of the chart empty; only the light Story card shown full-size.",
+        "S5": "Empty states shown ('No expenses yet', 'No expenses in this period', Budgets 'Not set/No limit'), immediate 'No amount found' error, offline service worker, 'CSV export, JSON backup/restore, last-backup date, storage-full warning, persistent storage request'. Mic-permission denial and restore-validation handling unstated."
+      },
+      "fixes": [
+        "Fix the budget-pace per-day figure: EN shows '$669 per day' where ZH shows '$869' for the identical $20,863 ÷ 24 calculation — a headline number is wrong in one locale.",
+        "Make the parsed date editable in record-sheet rows (helper text only promises 'change its category or amount'), so a misrecognized 'yesterday' can be corrected before Save.",
+        "Handle voice-failure paths explicitly — mic permission denied, unsupported or offline speech recognition — with an inline message steering to 'Enter details manually'."
+      ],
+      "total": 8.6,
+      "seconds": 138.9
+    }
+  },
+  "quorum": 3,
+  "council_score": 8.6,
+  "criterion_median": {
+    "S1": 8.0,
+    "S2": 9.0,
+    "S3": 9.0,
+    "S4": 9.0,
+    "S5": 8.0
+  },
+  "criterion_spread": {
+    "S1": 0.0,
+    "S2": 0.0,
+    "S3": 0.0,
+    "S4": 0.0,
+    "S5": 1.0
+  },
+  "split_criteria": [],
+  "judge_total_range": [
+    8.6,
+    8.75
+  ],
+  "fixes": [
+    {
+      "judge": "Pega-Vision",
+      "fix": "Replace the local '127.0.0.1' Siri instructions with production-safe, localized guidance and audit settings for shipped polish."
+    },
+    {
+      "judge": "Pega-Vision",
+      "fix": "Add a prominent Overview verdict that combines budget pace, projection, and comparison into one clear 'how am I doing?' status with drill-down."
+    },
+    {
+      "judge": "Pega-Vision",
+      "fix": "Add visible graceful error/recovery states for voice parsing failures, storage-full, backup restore conflicts, and offline sync issues."
+    },
+    {
+      "judge": "Pega-Thinking",
+      "fix": "Empty states are too sparse — 'No expenses yet' and 'No expenses in this period' screens have large blank areas; add illustration, example entries, or a more inviting onboarding prompt to match the polish of populated screens."
+    },
+    {
+      "judge": "Pega-Thinking",
+      "fix": "Inconsistent information density across screens — Overview is dense while Activity/Budgets empty states feel under-designed; establish a consistent baseline of helpful content (tips, recent activity, quick-add) for all empty views."
+    },
+    {
+      "judge": "Pega-Thinking",
+      "fix": "Share sheet preview in the contact sheet is cramped and hard to evaluate at thumbnail size — the in-app preview tile is small relative to the full-size Story card; enlarge the preview or add a clearer 'tap to expand' affordance so users can judge the output before sharing."
+    },
+    {
+      "judge": "GLM-5.3-Flash",
+      "fix": "Fix the budget-pace per-day figure: EN shows '$669 per day' where ZH shows '$869' for the identical $20,863 ÷ 24 calculation — a headline number is wrong in one locale."
+    },
+    {
+      "judge": "GLM-5.3-Flash",
+      "fix": "Make the parsed date editable in record-sheet rows (helper text only promises 'change its category or amount'), so a misrecognized 'yesterday' can be corrected before Save."
+    },
+    {
+      "judge": "GLM-5.3-Flash",
+      "fix": "Handle voice-failure paths explicitly — mic permission denied, unsupported or offline speech recognition — with an inline message steering to 'Enter details manually'."
+    }
+  ],
+  "label": "council-judged (3 judges)"
+}

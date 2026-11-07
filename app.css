@@ -156,6 +156,14 @@ select.field { width: auto; }
 
 .empty { text-align: center; color: var(--muted); padding: 48px 20px; font-size: 14px; }
 .empty strong { display: block; color: var(--text); font-size: 16px; margin-bottom: 4px; }
+.empty.cta { padding: 32px 20px 24px; }
+.empty .empty-mic { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto 14px; border-radius: 50%; background: var(--accent-soft, color-mix(in srgb, var(--accent) 14%, transparent)); }
+.empty .empty-mic svg { width: 24px; height: 24px; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; }
+.empty .empty-mic rect { fill: var(--accent); stroke: none; }
+.empty .empty-hint { display: block; max-width: 36ch; margin: 0 auto; text-wrap: balance; line-height: 1.45; }
+.empty .empty-actions { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 18px; }
+.empty .empty-actions .btn { min-width: 180px; }
+.empty .empty-actions .link { min-height: 44px; }
 
 /* settings + budgets */
 .setting { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 12px 14px; min-height: 50px; }

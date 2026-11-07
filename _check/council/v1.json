@@ -1,0 +1,146 @@
+{
+  "mode": "score",
+  "models": [
+    "Pega-Vision",
+    "Pega-Thinking",
+    "GLM-5.3-Flash"
+  ],
+  "weights": {
+    "S1": 0.25,
+    "S2": 0.25,
+    "S3": 0.2,
+    "S4": 0.15,
+    "S5": 0.15
+  },
+  "judges": {
+    "Pega-Vision": {
+      "scores": {
+        "S1": 8.0,
+        "S2": 9.0,
+        "S3": 9.0,
+        "S4": 8.0,
+        "S5": 9.0
+      },
+      "evidence": {
+        "S1": "Consistent cards and dark mode, but the scrolled Overview banner overlaps the header and the share preview is tiny.",
+        "S2": "Status reads 'Listening - 2 found' while speaking; a toast offers Edit and Undo.",
+        "S3": "Budget card gives used, %, per-day allowance, and month-end projection; chart bars open that day's expenses.",
+        "S4": "Story card keeps content inside the UI-free zone, but the share-sheet preview is small and cramped.",
+        "S5": "Works offline, CSV export, JSON backup/restore, last-backup date, storage-full warning, and persistent storage request."
+      },
+      "fixes": [
+        "Fix the scrolled Overview budget banner overlap and make the share-sheet preview large enough to read.",
+        "Add full-size share previews for Square, dark mode, and Chinese/Indonesian, and verify no cramped labels or safe-zone collisions.",
+        "Add explicit voice capture offline/error/retry states so failed speech input is recoverable without losing intent."
+      ],
+      "total": 8.6,
+      "seconds": 18.4
+    },
+    "Pega-Thinking": {
+      "scores": {
+        "S1": 8.0,
+        "S2": 10.0,
+        "S3": 10.0,
+        "S4": 10.0,
+        "S5": 10.0
+      },
+      "evidence": {
+        "S1": "Clean typography hierarchy with large totals, consistent bottom nav, both light/dark themes coherent, Chinese and Indonesian localizations look proper; minor rough edges: record sheet packs many controls (mic, parsed rows, category chips, Save) into one screen, and Overview budget card subtext is quite small.",
+        "S2": "One-tap mic, live parsing ('Listening - 2 found'), instant 'No amount found', per-row tap to edit category/amount, toast with Edit and Undo after save - matches the 10 anchor exactly.",
+        "S3": "Totals with 'vs same point last month', budget with used/%/per-day/projection, spending-by-day chart with peak and average labels, drill-down on bar tap, budget-pace tick, logging streak, days under budget - covers pace, comparisons and drill-down.",
+        "S4": "Full-size Story card shows poster-grade layout (TALLY wordmark, month, NT$3,950, -24% delta, budget-pace line, 4-stat grid, top-3 categories with bars, voice footer); UI-free zone y=250-1670 verified; 8 backgrounds, transparent PNG, photo, Hide amounts, Story/Square.",
+        "S5": "Empty states are CTAs with mic badge + 'Log by voice'/'Add manually' >=44px; offline service worker, CSV export, JSON backup/restore with last-backup date, storage-full warning, persistent storage request, region-driven currency/format/voice/language, 0 a11y failures over 77 screens."
+      },
+      "fixes": [
+        "Simplify the record sheet layout - it currently stacks mic, parsed rows, category chips and Save in one dense view; consider a step-by-step or collapsible pattern to reduce cognitive load.",
+        "Increase the size/contrast of the Overview budget card subtext ('$8,137 of $30,000', '30%') so the pace and projection read at a glance without zooming.",
+        "Tighten spacing and visual grouping on the Activity list - category icons, amounts and dates are close together; more breathing room would push it from 'clean' to 'shipped finance app'."
+      ],
+      "total": 9.5,
+      "seconds": 18.5
+    },
+    "GLM-5.3-Flash": {
+      "scores": {
+        "S1": 8.0,
+        "S2": 9.0,
+        "S3": 10.0,
+        "S4": 9.0,
+        "S5": 8.0
+      },
+      "evidence": {
+        "S1": "Screens are clean and consistent across light/dark and EN/ID/ZH; rough edges: budget input shows bare '30000' with no currency/separators ('Monthly budget 30000', '$9,137 of 30,000'), and awkward localized header 'TANPA TANGAN DENGAN SIRI'.",
+        "S2": "'both expenses are parsed live and saved when you stop talking; a toast offers Edit and Undo', status 'Listening - 2 found', rows 'tapped to change category or amount, or removed' - only friction is undo living in a transient toast.",
+        "S3": "Pace ('$669 per day available for the remaining 24 days... $9,159 over budget', today tick), comparison ('+100% vs same point last month ($4,570)'), trend (avg/peak labelled chart), drill-down ('Tap a bar to see that day') and category breakdown all present.",
+        "S4": "Full-size Story card is poster-grade and 'all content sits between y=250 and y=1670... measured by alpha bounds'; but only one background/language is shown at full size, and photo-background legibility is unevidenced.",
+        "S5": "'Works offline (service worker), CSV export, JSON backup/restore... storage-full warning, persistent storage request'; empty states are strong CTAs ('Log by voice' / 'Add manually', >=44 px); no evidence for mic-permission-denied, unsupported speech recognition, or corrupt-backup restore."
+      },
+      "fixes": [
+        "Harden capture/restore failure paths: handle microphone-permission denial and devices without speech recognition (and clarify whether voice needs connectivity while the app is offline), plus reject/cleanly handle an invalid JSON backup on restore.",
+        "Make post-save correction durable: don't strand Edit/Undo in a transient toast - add a persistent just-saved chip or voice correction ('change lunch to 150') so a missed toast doesn't turn undo into a multi-tap hunt in Activity.",
+        "Close polish gaps: currency-format budget inputs ('30000' -> '$30,000'), fix awkward machine-translated strings (e.g. ID 'TANPA TANGAN DENGAN SIRI'), and verify all 8 share backgrounds x shapes x languages at full size for poster-grade output."
+      ],
+      "total": 8.8,
+      "seconds": 52.7
+    }
+  },
+  "quorum": 3,
+  "council_score": 8.95,
+  "criterion_median": {
+    "S1": 8.0,
+    "S2": 9.0,
+    "S3": 10.0,
+    "S4": 9.0,
+    "S5": 9.0
+  },
+  "criterion_spread": {
+    "S1": 0.0,
+    "S2": 1.0,
+    "S3": 1.0,
+    "S4": 2.0,
+    "S5": 2.0
+  },
+  "split_criteria": [],
+  "judge_total_range": [
+    8.6,
+    9.5
+  ],
+  "fixes": [
+    {
+      "judge": "Pega-Vision",
+      "fix": "Fix the scrolled Overview budget banner overlap and make the share-sheet preview large enough to read."
+    },
+    {
+      "judge": "Pega-Vision",
+      "fix": "Add full-size share previews for Square, dark mode, and Chinese/Indonesian, and verify no cramped labels or safe-zone collisions."
+    },
+    {
+      "judge": "Pega-Vision",
+      "fix": "Add explicit voice capture offline/error/retry states so failed speech input is recoverable without losing intent."
+    },
+    {
+      "judge": "Pega-Thinking",
+      "fix": "Simplify the record sheet layout - it currently stacks mic, parsed rows, category chips and Save in one dense view; consider a step-by-step or collapsible pattern to reduce cognitive load."
+    },
+    {
+      "judge": "Pega-Thinking",
+      "fix": "Increase the size/contrast of the Overview budget card subtext ('$8,137 of $30,000', '30%') so the pace and projection read at a glance without zooming."
+    },
+    {
+      "judge": "Pega-Thinking",
+      "fix": "Tighten spacing and visual grouping on the Activity list - category icons, amounts and dates are close together; more breathing room would push it from 'clean' to 'shipped finance app'."
+    },
+    {
+      "judge": "GLM-5.3-Flash",
+      "fix": "Harden capture/restore failure paths: handle microphone-permission denial and devices without speech recognition (and clarify whether voice needs connectivity while the app is offline), plus reject/cleanly handle an invalid JSON backup on restore."
+    },
+    {
+      "judge": "GLM-5.3-Flash",
+      "fix": "Make post-save correction durable: don't strand Edit/Undo in a transient toast - add a persistent just-saved chip or voice correction ('change lunch to 150') so a missed toast doesn't turn undo into a multi-tap hunt in Activity."
+    },
+    {
+      "judge": "GLM-5.3-Flash",
+      "fix": "Close polish gaps: currency-format budget inputs ('30000' -> '$30,000'), fix awkward machine-translated strings (e.g. ID 'TANPA TANGAN DENGAN SIRI'), and verify all 8 share backgrounds x shapes x languages at full size for poster-grade output."
+    }
+  ],
+  "label": "council-judged (3 judges)"
+}

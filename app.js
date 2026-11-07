@@ -218,6 +218,19 @@ function summarize(range) {
   return { items, total: sum(items), isCurrent, elapsed, spanDays, trackedDays };
 }
 
+// ---------- Empty states ----------
+// Empty screens point at the next action instead of only saying "nothing here".
+function emptyStateHtml(title, hint, style = "") {
+  return `<div class="panel empty cta" ${style ? `style="${style}"` : ""}>
+    <span class="empty-mic" aria-hidden="true">${MIC_ICON}</span>
+    <strong>${title}</strong><span class="empty-hint">${hint}</span>
+    <div class="empty-actions">
+      <button class="btn primary" data-record>${t("logByVoice")}</button>
+      <button class="link" data-add>${t("addManually")}</button>
+    </div>
+  </div>`;
+}
+
 // ---------- Overview ----------
 function renderOverview() {
   const range = rangeFor(ui.period, ui.anchor);
@@ -226,7 +239,7 @@ function renderOverview() {
 
   if (!store.expenses.length) {
     view.innerHTML = `${heroHtml(current, null)}
-      <div class="panel empty" style="margin-top:24px"><strong>${t("noExpensesYet")}</strong>${t("emptyHint")}</div>`;
+      ${emptyStateHtml(t("noExpensesYet"), t("emptyHint"), "margin-top:24px")}`;
     return;
   }
 
@@ -304,7 +317,7 @@ function budgetSummaryHtml(current) {
     <div class="block-head"><h2>${t("budget")}</h2><button class="link" data-goto="budgets">${t("edit")}</button></div>
     <div class="panel budget-line">
       <div class="row-top num"><span>${t("ofBudget", { spent: money(current.total), budget: money(budget) })}</span><span>${Math.round(used * 100)}%</span></div>
-      <div class="meter"><i class="${used > 1 ? "over" : ""}" style="width:${Math.min(used, 1) * 100}%"></i>${current.isCurrent ? `<b style="left:${pace * 100}%"></b>` : ""}</div>
+      <div class="meter"><i class="${used > 1 ? "over" : ""}" style="width:${Math.min(used, 1) * 100}%"></i>${current.isCurrent ? `<b class="today" style="left:${(pace * 100).toFixed(1)}%"></b>` : ""}</div>
       <div class="note">${note}</div>${paceNote}
     </div>
   </div>`;
@@ -389,7 +402,7 @@ function chartHtml(range, current) {
 
 function categoriesHtml(current) {
   if (!current.items.length) {
-    return `<div class="block"><div class="panel empty">${t("noExpensesPeriod")}</div></div>`;
+    return `<div class="block">${emptyStateHtml(t("noExpensesPeriod"), t("emptyPeriodHint"))}</div>`;
   }
   const totals = {};
   const counts = {};
@@ -476,7 +489,9 @@ function renderTransactionList() {
   let html = ui.day ? `<button class="filter-chip" data-clear-day>${dayLabel(ui.day)} · ${t("showAll")}</button>` : "";
   html += `<div class="summary-line num"><span>${scope} · ${count}</span><span>${money(sum(items))}</span></div>`;
   if (!items.length) {
-    html += `<div class="panel empty" style="margin-top:14px">${ui.query ? t("noMatches") : t("noExpensesPeriod")}</div>`;
+    html += ui.query
+      ? `<div class="panel empty" style="margin-top:14px">${t("noMatches")}</div>`
+      : emptyStateHtml(t("noExpensesPeriod"), t("emptyPeriodHint"), "margin-top:14px");
   }
   const days = {};
   for (const e of items) {
@@ -537,6 +552,10 @@ function renderBudgets() {
 
   const suggestions = suggestedLimits();
   const whole = { maximumFractionDigits: 0, minimumFractionDigits: 0 };
+  // Thin tick at how far through the month we are: a bar left of it is on pace.
+  const pace = current.elapsed / current.spanDays;
+  const todayMark = `<b class="today" style="left:${(pace * 100).toFixed(1)}%"></b>`;
+  const anyBudget = store.settings.budgetTotal || Object.values(store.settings.budgets).some(Boolean);
   const statusHtml = (spent, budget, key) => {
     if (!budget) {
       const suggestion = suggestions[key];
@@ -547,7 +566,7 @@ function renderBudgets() {
     }
     const ratio = spent / budget;
     const left = budget - spent;
-    return `<div class="meter"><i class="${ratio > 1 ? "over" : ""}" style="width:${Math.min(ratio, 1) * 100}%"></i></div>
+    return `<div class="meter"><i class="${ratio > 1 ? "over" : ""}" style="width:${Math.min(ratio, 1) * 100}%"></i>${todayMark}</div>
       <div class="status num"><span>${t("ofBudget", { spent: money(spent), budget: money(budget) })}</span><span>${left >= 0 ? t("left", { amount: money(left) }) : t("over", { amount: money(-left) })}</span></div>`;
   };
 
@@ -575,7 +594,7 @@ function renderBudgets() {
       <div class="block-head"><h2>${t("byCategory")}</h2></div>
       <div class="panel rows">${categoryRows}</div>
     </div>
-    <p class="foot">${t("budgetsNote")}</p>`;
+    <p class="foot">${anyBudget ? `${t("paceTickHint")} ` : ""}${t("budgetsNote")}</p>`;
 }
 
 // ---------- Settings ----------
@@ -1150,6 +1169,14 @@ document.addEventListener("click", (event) => {
     goTo("transactions");
   } else if (target.hasAttribute("data-close")) {
     closeSheet();
+  }
+});
+
+document.addEventListener("click", (event) => {
+  if (event.target.closest("[data-record]")) {
+    openRecorder();
+  } else if (event.target.closest("[data-add]")) {
+    openEditor(null);
   }
 });
 

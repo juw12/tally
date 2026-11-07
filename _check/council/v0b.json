@@ -1,0 +1,116 @@
+{
+  "mode": "score",
+  "models": [
+    "Pega-Vision",
+    "Pega-Thinking",
+    "GLM-5.3-Flash"
+  ],
+  "weights": {
+    "S1": 0.25,
+    "S2": 0.25,
+    "S3": 0.2,
+    "S4": 0.15,
+    "S5": 0.15
+  },
+  "judges": {
+    "Pega-Vision": {
+      "scores": {
+        "S1": 9.0,
+        "S2": 9.0,
+        "S3": 9.0,
+        "S4": 9.0,
+        "S5": 9.0
+      },
+      "evidence": {
+        "S1": "Light, dark, Traditional Chinese, Indonesian, and share sheet screens use consistent cards, spacing, and tabular numerals.",
+        "S2": "both expenses are parsed live and saved when you stop talking; a toast offers Edit and Undo.",
+        "S3": "Tapping a chart bar opens that day's expenses. Peak and average are labelled on the chart.",
+        "S4": "Share card for day/week/month, Story or Square, 8 colour backgrounds, a transparent PNG sticker",
+        "S5": "Works offline (service worker), CSV export, JSON backup/restore, last-backup date, storage-full warning"
+      },
+      "fixes": [
+        "Add a brief review/confirm step or stronger undo for voice auto-save so accidental speech cannot silently create expenses.",
+        "Improve visual hierarchy in the share sheet, settings, and empty states: larger preview, less dense instructions, and more engaging empty-state design.",
+        "Add category drill-down and richer comparisons, such as week-over-week and category trends, to make summaries more actionable."
+      ],
+      "total": 9.0,
+      "seconds": 22.7
+    },
+    "Pega-Thinking": {
+      "scores": {
+        "S1": 8.0,
+        "S2": 10.0,
+        "S3": 10.0,
+        "S4": 10.0,
+        "S5": 10.0
+      },
+      "evidence": {
+        "S1": "Clean typography hierarchy, consistent bottom nav, good dark/light parity; minor rough edges: dark-mode 'Listening' state uses a simpler layout than the light-mode record sheet, and the Indonesian settings screen has dense text that crowds the card.",
+        "S2": "'Tap the mic and say lunch 120 and taxi 250 yesterday: both expenses are parsed live and saved when you stop talking; a toast offers Edit and Undo... Status reads Listening - 2 found while speaking; the mic pulses.' One-tap capture with live feedback, instant fix and undo.",
+        "S3": "Overview shows total with '+10% vs same point last month', budget card with per-day allowance and month-end projection, spending-by-day chart with peak/average labels, category breakdown with percentages; 'Tapping a chart bar opens that day's expenses.' Story card adds budget-pace line, days-under-budget, logging streak.",
+        "S4": "Day/week/month, Story or Square, 8 colour backgrounds, transparent PNG sticker with light/dark text, own photo, 'Hide amounts' percentages-only mode; the 1080x1920 Story card is poster-grade with clear hierarchy, budget-pace line, per-day/transactions/days-under-budget/streak grid, and category bars.",
+        "S5": "'Works offline (service worker), CSV export, JSON backup/restore, last-backup date, storage-full warning, persistent storage request.' Empty states shown ('No expenses yet', 'No expenses in this period') and 'No amount found' error state for voice input."
+      },
+      "fixes": [
+        "Unify the dark-mode capture/record sheet with the light-mode layout so the live parsed rows, category chips and amount fields appear identically in both themes.",
+        "Make empty states more visually engaging (illustration or subtle graphic) instead of plain text on the Overview, Activity and Budgets screens to guide first-time users.",
+        "Tighten the Indonesian (and other localized) Settings screen layout - the 'Wilayah', 'Bahasa aplikasi' and 'Tanya tanpa dengan Siri' cards look cramped; increase line-height or split into more cards."
+      ],
+      "total": 9.5,
+      "seconds": 8.9
+    },
+    "GLM-5.3-Flash": {
+      "error": "unparseable or incomplete reply",
+      "raw": "{\"scores\": {\"S1\": {\"score\": 8, \"evidence\": \"Consistent headers, segmented controls and tab bar across all 12 screens incl. dark and localized (總覽, Pengaturan); rough edge: in the dark record sheet the Taxi row is outlined while Lunch is not, and the scrimmed content behind sheets clips mid-row.\"}, \"S2\": {\"score\": 9, \"evidence\": \"'both expenses are parsed live and saved when you stop talking; a toast offers Edit and Undo', status 'Listening · 2 found', rows 'tapped to change its category or amoun",
+      "seconds": 120.4
+    }
+  },
+  "quorum": 2,
+  "council_score": 9.25,
+  "criterion_median": {
+    "S1": 8.5,
+    "S2": 9.5,
+    "S3": 9.5,
+    "S4": 9.5,
+    "S5": 9.5
+  },
+  "criterion_spread": {
+    "S1": 1.0,
+    "S2": 1.0,
+    "S3": 1.0,
+    "S4": 1.0,
+    "S5": 1.0
+  },
+  "split_criteria": [],
+  "judge_total_range": [
+    9.0,
+    9.5
+  ],
+  "fixes": [
+    {
+      "judge": "Pega-Vision",
+      "fix": "Add a brief review/confirm step or stronger undo for voice auto-save so accidental speech cannot silently create expenses."
+    },
+    {
+      "judge": "Pega-Vision",
+      "fix": "Improve visual hierarchy in the share sheet, settings, and empty states: larger preview, less dense instructions, and more engaging empty-state design."
+    },
+    {
+      "judge": "Pega-Vision",
+      "fix": "Add category drill-down and richer comparisons, such as week-over-week and category trends, to make summaries more actionable."
+    },
+    {
+      "judge": "Pega-Thinking",
+      "fix": "Unify the dark-mode capture/record sheet with the light-mode layout so the live parsed rows, category chips and amount fields appear identically in both themes."
+    },
+    {
+      "judge": "Pega-Thinking",
+      "fix": "Make empty states more visually engaging (illustration or subtle graphic) instead of plain text on the Overview, Activity and Budgets screens to guide first-time users."
+    },
+    {
+      "judge": "Pega-Thinking",
+      "fix": "Tighten the Indonesian (and other localized) Settings screen layout - the 'Wilayah', 'Bahasa aplikasi' and 'Tanya tanpa dengan Siri' cards look cramped; increase line-height or split into more cards."
+    }
+  ],
+  "label": "council-judged (2 judges)"
+}

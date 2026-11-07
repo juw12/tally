@@ -6,3 +6,5 @@ _check/__pycache__/
 _check/*.jpg
 _check/logs-*/
 _check/measure-*/
+_check/council/*.jpg
+_check/council/*.png

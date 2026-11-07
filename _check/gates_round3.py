@@ -181,7 +181,8 @@ with sync_playwright() as playwright:
 
     # WebKit (Safari engine) smoke test: closest available stand-in for iOS Safari.
     try:
-        webkit = playwright.webkit.launch()
+        # Loopback must bypass the corporate proxy, which rejects 127.0.0.1 requests.
+        webkit = playwright.webkit.launch(proxy={"server": "http://localhost:3128", "bypass": "127.0.0.1,localhost,<-loopback>"})
     except Exception as error:  # engine not installed
         check(f"WebKit smoke test (skipped: {str(error).splitlines()[0][:60]})", True)
         webkit = None
@@ -223,3 +224,4 @@ check(f"no JS errors ({all_errors or 'none'})", not all_errors)
 for name, ok in checks:
     print(("PASS " if ok else "FAIL ") + name)
 sys.exit(0 if all(ok for _, ok in checks) else 1)
+

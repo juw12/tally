@@ -383,7 +383,7 @@ function drawDayPips(ctx, data, box, theme, hide, isStory) {
     ctx.globalAlpha = 1;
   });
 
-  const rows = isStory ? 4 : 0;
+  const rows = isStory ? 2 : 0;
   let rowY = lineY + 120;
   [...data.items].sort((a, b) => b.amount - a.amount).slice(0, rows).forEach((e) => {
     ctx.fillStyle = CATEGORY_COLORS[e.cat] || CATEGORY_COLORS.Other;
@@ -409,6 +409,10 @@ function drawShareCard(canvas, data, options) {
   const W = 1080;
   const H = isStory ? 1920 : 1080;
   const P = 88;
+  // Instagram/TikTok overlay their UI on the top and bottom ~250 px of a story,
+  // so story content stays inside SAFE_TOP..SAFE_BOTTOM (Strava-style safe zone).
+  const SAFE_TOP = 250;
+  const SAFE_BOTTOM = H - 250;
   const theme = cardTheme(options);
   const hide = options.hideAmounts;
   canvas.width = W;
@@ -423,7 +427,7 @@ function drawShareCard(canvas, data, options) {
   }
 
   // Header
-  let y = isStory ? 150 : 112;
+  let y = isStory ? SAFE_TOP + 40 : 112;
   ctx.fillStyle = theme.text;
   ctx.font = cardFont(800, 32);
   spacedText(ctx, "TALLY", P, y, 7);
@@ -437,11 +441,11 @@ function drawShareCard(canvas, data, options) {
   ctx.fillRect(P, y, W - 2 * P, 2);
 
   // Headline number
-  y += isStory ? 108 : 82;
+  y += isStory ? 86 : 82;
   ctx.fillStyle = theme.muted;
   ctx.font = cardFont(500, 38);
   ctx.fillText(t("totalSpent"), P, y);
-  y += isStory ? 158 : 128;
+  y += isStory ? 146 : 128;
   let headline;
   let subline = "";
   if (!hide) {
@@ -454,7 +458,7 @@ function drawShareCard(canvas, data, options) {
     subline = t("expensesLogged");
   }
   ctx.fillStyle = theme.text;
-  fitFont(ctx, headline, W - 2 * P, 750, isStory ? 172 : 136, 72);
+  fitFont(ctx, headline, W - 2 * P, 750, isStory ? 160 : 136, 72);
   ctx.fillText(headline, P, y);
   if (subline) {
     const width = ctx.measureText(headline).width;
@@ -464,7 +468,7 @@ function drawShareCard(canvas, data, options) {
   }
 
   // Comparison line
-  y += 70;
+  y += isStory ? 64 : 70;
   if (data.compare) {
     const change = data.compare.change;
     const text = `${change >= 0 ? "+" : "−"}${Math.abs(change).toFixed(0)}%`;
@@ -478,15 +482,15 @@ function drawShareCard(canvas, data, options) {
   }
 
   // Visual
-  const box = { x: P, y: y + (isStory ? 90 : 60), w: W - 2 * P, h: isStory ? 420 : 250 };
+  const box = { x: P, y: y + (isStory ? 72 : 60), w: W - 2 * P, h: isStory ? 280 : 250 };
   if (data.kind === "month") {
     drawMonthTrail(ctx, data, box, theme, hide);
   } else if (data.kind === "week") {
     drawWeekBars(ctx, data, box, theme, hide);
   } else {
-    drawDayPips(ctx, data, { ...box, h: isStory ? 420 : 180 }, theme, hide, isStory);
+    drawDayPips(ctx, data, { ...box, h: isStory ? 280 : 180 }, theme, hide, isStory);
   }
-  y = box.y + box.h + (isStory ? 110 : 90);
+  y = box.y + box.h + (isStory ? 82 : 90);
 
   // Stats
   const topCat = data.topCategories[0] ? catName(data.topCategories[0].cat) : "—";
@@ -510,7 +514,7 @@ function drawShareCard(canvas, data, options) {
   const shown = isStory ? stats : stats.slice(0, 3);
   const columns = isStory ? 2 : shown.length;
   const cellW = (W - 2 * P) / columns;
-  const cellH = isStory ? 150 : 140;
+  const cellH = isStory ? 128 : 140;
   const rowsCount = Math.ceil(shown.length / columns);
   ctx.fillStyle = theme.panel;
   ctx.beginPath();
@@ -521,10 +525,10 @@ function drawShareCard(canvas, data, options) {
     const cy = y - 20 + Math.floor(i / columns) * cellH;
     ctx.fillStyle = theme.muted;
     ctx.font = cardFont(500, isStory ? 30 : 24);
-    ctx.fillText(ellipsize(ctx, stat.label, cellW - 50), cx, cy + (isStory ? 62 : 52));
+    ctx.fillText(ellipsize(ctx, stat.label, cellW - 50), cx, cy + (isStory ? 54 : 52));
     ctx.fillStyle = theme.text;
-    fitFont(ctx, stat.value, cellW - 50, 700, isStory ? 54 : 40, 26);
-    ctx.fillText(stat.value, cx, cy + (isStory ? 122 : 104));
+    fitFont(ctx, stat.value, cellW - 50, 700, isStory ? 50 : 40, 26);
+    ctx.fillText(stat.value, cx, cy + (isStory ? 106 : 104));
   });
   ctx.fillStyle = theme.line;
   for (let c = 1; c < columns; c++) {
@@ -533,16 +537,16 @@ function drawShareCard(canvas, data, options) {
   if (rowsCount > 1) {
     ctx.fillRect(P + 30, y - 20 + cellH, W - 2 * P - 60, 2);
   }
-  y += rowsCount * cellH + (isStory ? 80 : 40);
+  y += rowsCount * cellH + (isStory ? 54 : 40);
 
   // Top categories (story only), never running into the footer
-  const footY = H - (isStory ? 80 : 64);
+  const footY = isStory ? SAFE_BOTTOM - 12 : H - 64;
   if (isStory && data.topCategories.length) {
     ctx.fillStyle = theme.muted;
     ctx.font = cardFont(600, 26);
     spacedText(ctx, t("categories").toLocaleUpperCase(locale()), P, y, 3);
-    y += 60;
-    data.topCategories.filter((_, i) => y + i * 84 + 40 < footY - 30).forEach((c) => {
+    y += 50;
+    data.topCategories.filter((_, i) => y + i * 72 + 30 < footY - 40).forEach((c) => {
       const color = CATEGORY_COLORS[c.cat] || CATEGORY_COLORS.Other;
       ctx.fillStyle = color;
       ctx.beginPath();
@@ -563,7 +567,7 @@ function drawShareCard(canvas, data, options) {
       ctx.beginPath();
       ctx.roundRect(P + 42, y + 20, Math.max(8, (W - 2 * P - 42) * c.share), 8, 4);
       ctx.fill();
-      y += 84;
+      y += 72;
     });
   }
 
