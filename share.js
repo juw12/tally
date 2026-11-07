@@ -593,7 +593,7 @@ function openShare() {
     .map(([value, label]) => `<button data-value="${value}" class="${options[name] === value ? "on" : ""}">${label}</button>`)
     .join("")}</div>`;
   const swatches = CARD_BACKGROUNDS
-    .map(([value, fill]) => `<button class="swatch swatch-${value} ${options.theme === value ? "on" : ""}" data-bg="${value}"
+    .map(([value, fill]) => `<button class="bg-swatch bg-swatch-${value} ${options.theme === value ? "on" : ""}" data-bg="${value}"
       aria-label="${t(value)}" aria-pressed="${options.theme === value}" title="${t(value)}"${fill ? ` style="background:${fill}"` : ""}>${value === "photo" ? photoGlyph() : ""}</button>`)
     .join("");
 
