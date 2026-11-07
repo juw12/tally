@@ -218,6 +218,11 @@ function micGlyph(ctx, x, y, size, color) {
 }
 
 const plainMoney = (value) => money(Math.round(value), { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+// Bar labels: the full grouped amount ("Rp 85.000") when it is short enough, compact ("Rp 1,2 jt") otherwise.
+const cardMoney = (value) => {
+  const full = plainMoney(value);
+  return full.replace(/\s/g, "").length <= 9 ? full : compactMoney(value);
+};
 
 // ---------- Visuals ----------
 function drawMonthTrail(ctx, data, box, theme, hide) {
@@ -328,7 +333,7 @@ function drawWeekBars(ctx, data, box, theme, hide) {
       ctx.fillStyle = theme.text;
       ctx.font = cardFont(600, 24);
       ctx.textAlign = "center";
-      ctx.fillText(compactMoney(v.value), bx + barWidth / 2, by - 14);
+      ctx.fillText(cardMoney(v.value), bx + barWidth / 2, by - 14);
     }
     ctx.fillStyle = theme.muted;
     ctx.font = cardFont(500, 26);
