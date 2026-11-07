@@ -6,8 +6,61 @@ const CARD_THEMES = {
   light: { bg: "#f6f5f2", panel: "#ffffff", text: "#141414", muted: "#6e6b66", line: "#e4e2dd", accent: "#1f3b5c", soft: "rgba(31,59,92,0.10)", up: "#a8321e", down: "#2f6b45" },
   dark: { bg: "#111315", panel: "#1a1d20", text: "#f2f1ee", muted: "#8f8c87", line: "#2b2f34", accent: "#9db8d6", soft: "rgba(157,184,214,0.14)", up: "#e07a63", down: "#7fbf93" },
   navy: { bg: "#1f3b5c", panel: "#264669", text: "#f6f5f2", muted: "#a9bbd0", line: "#37587e", accent: "#f6f5f2", soft: "rgba(246,245,242,0.13)", up: "#f2a28f", down: "#9fd8b0" },
+  forest: { bg: "#1f3a30", panel: "#274638", text: "#f3f1ea", muted: "#a9bfb2", line: "#355747", accent: "#e8e3d3", soft: "rgba(232,227,211,0.13)", up: "#f2a28f", down: "#a8dcb6" },
+  clay: { bg: "#9a4630", panel: "#a65239", text: "#fff8f3", muted: "#f1cdbf", line: "#b8664c", accent: "#fff5ee", soft: "rgba(255,245,238,0.16)", up: "#ffd9a8", down: "#d8f0c8" },
+  sand: { bg: "#ebe3d3", panel: "#f6f1e7", text: "#1d1a15", muted: "#6b6254", line: "#d8cdb8", accent: "#7a4a1f", soft: "rgba(122,74,31,0.12)", up: "#a8321e", down: "#2f6b45" },
+  dusk: { bg: "#1f3b5c", gradient: ["#1c3557", "#5b3a5f"], panel: "rgba(255,255,255,0.10)", text: "#f6f5f2", muted: "#c3c3d6", line: "rgba(255,255,255,0.22)", accent: "#f6f5f2", soft: "rgba(246,245,242,0.14)", up: "#f2a28f", down: "#9fd8b0" },
+  ember: { bg: "#8f3f2b", gradient: ["#a3492f", "#3a2230"], panel: "rgba(255,255,255,0.10)", text: "#fff8f3", muted: "#efc9bb", line: "rgba(255,255,255,0.22)", accent: "#fff5ee", soft: "rgba(255,245,238,0.15)", up: "#ffd9a8", down: "#d8f0c8" },
+  // Sticker: no background at all, so the PNG keeps its alpha channel. Ink picks white or dark text.
+  transparent: { bg: null, shadow: "rgba(0,0,0,0.45)", panel: "rgba(255,255,255,0.14)", text: "#ffffff", muted: "rgba(255,255,255,0.80)", line: "rgba(255,255,255,0.35)", accent: "#ffffff", soft: "rgba(255,255,255,0.18)", up: "#ffb4a3", down: "#b8f0c8" },
+  transparentDark: { bg: null, panel: "rgba(20,20,20,0.06)", text: "#141414", muted: "rgba(20,20,20,0.70)", line: "rgba(20,20,20,0.22)", accent: "#141414", soft: "rgba(20,20,20,0.10)", up: "#a8321e", down: "#2f6b45" },
+  // The user's own photo behind a dark scrim, white text on top.
+  photo: { bg: null, photo: true, shadow: "rgba(0,0,0,0.40)", panel: "rgba(0,0,0,0.34)", text: "#ffffff", muted: "rgba(255,255,255,0.82)", line: "rgba(255,255,255,0.32)", accent: "#ffffff", soft: "rgba(255,255,255,0.18)", up: "#ffb4a3", down: "#b8f0c8" },
 };
+// Swatch order in the picker; colours are only for the swatch chips.
+const CARD_BACKGROUNDS = [
+  ["light", "#f6f5f2"], ["dark", "#111315"], ["navy", "#1f3b5c"], ["forest", "#1f3a30"], ["clay", "#9a4630"],
+  ["sand", "#ebe3d3"], ["dusk", "linear-gradient(160deg,#1c3557,#5b3a5f)"], ["ember", "linear-gradient(160deg,#a3492f,#3a2230)"],
+  ["transparent", ""], ["photo", ""],
+];
+// Picked photo lives in memory only; it is never written to storage.
+let sharePhoto = null;
 const CARD_FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", sans-serif';
+
+function cardTheme(options) {
+  if (options.theme === "transparent" && options.ink === "dark") {
+    return CARD_THEMES.transparentDark;
+  }
+  return CARD_THEMES[options.theme] || CARD_THEMES.light;
+}
+
+function paintBackground(ctx, W, H, theme) {
+  ctx.clearRect(0, 0, W, H);
+  if (theme.photo && sharePhoto) {
+    const scale = Math.max(W / sharePhoto.width, H / sharePhoto.height);
+    const w = sharePhoto.width * scale;
+    const h = sharePhoto.height * scale;
+    ctx.drawImage(sharePhoto, (W - w) / 2, (H - h) / 2, w, h);
+    const scrim = ctx.createLinearGradient(0, 0, 0, H);
+    scrim.addColorStop(0, "rgba(0,0,0,0.50)");
+    scrim.addColorStop(0.45, "rgba(0,0,0,0.28)");
+    scrim.addColorStop(1, "rgba(0,0,0,0.62)");
+    ctx.fillStyle = scrim;
+    ctx.fillRect(0, 0, W, H);
+  } else if (theme.photo) {
+    ctx.fillStyle = "#1b1d20";
+    ctx.fillRect(0, 0, W, H);
+  } else if (theme.gradient) {
+    const fill = ctx.createLinearGradient(0, 0, W * 0.4, H);
+    fill.addColorStop(0, theme.gradient[0]);
+    fill.addColorStop(1, theme.gradient[1]);
+    ctx.fillStyle = fill;
+    ctx.fillRect(0, 0, W, H);
+  } else if (theme.bg) {
+    ctx.fillStyle = theme.bg;
+    ctx.fillRect(0, 0, W, H);
+  }
+}
 
 // ---------- Data ----------
 function daySpend(key) {
@@ -220,10 +273,13 @@ function drawMonthTrail(ctx, data, box, theme, hide) {
     const end = points.length - 1;
     const ex = x(end);
     const ey = y(points[end].running);
-    ctx.fillStyle = theme.bg;
-    ctx.beginPath();
-    ctx.arc(ex, ey, 16, 0, Math.PI * 2);
-    ctx.fill();
+    // Halo ring only on flat backgrounds; on stickers, gradients and photos it would show as a blob.
+    if (theme.bg && !theme.gradient) {
+      ctx.fillStyle = theme.bg;
+      ctx.beginPath();
+      ctx.arc(ex, ey, 16, 0, Math.PI * 2);
+      ctx.fill();
+    }
     ctx.fillStyle = theme.accent;
     ctx.beginPath();
     ctx.arc(ex, ey, 11, 0, Math.PI * 2);
@@ -353,14 +409,18 @@ function drawShareCard(canvas, data, options) {
   const W = 1080;
   const H = isStory ? 1920 : 1080;
   const P = 88;
-  const theme = CARD_THEMES[options.theme] || CARD_THEMES.light;
+  const theme = cardTheme(options);
   const hide = options.hideAmounts;
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext("2d");
   ctx.textBaseline = "alphabetic";
-  ctx.fillStyle = theme.bg;
-  ctx.fillRect(0, 0, W, H);
+  paintBackground(ctx, W, H, theme);
+  if (theme.shadow) {
+    ctx.shadowColor = theme.shadow;
+    ctx.shadowBlur = 14;
+    ctx.shadowOffsetY = 2;
+  }
 
   // Header
   let y = isStory ? 150 : 112;
@@ -516,7 +576,7 @@ function drawShareCard(canvas, data, options) {
 
 // ---------- Share sheet ----------
 function shareOptions() {
-  store.settings.share = { kind: "month", format: "story", theme: "light", hideAmounts: false, ...(store.settings.share || {}) };
+  store.settings.share = { kind: "month", format: "story", theme: "light", ink: "light", hideAmounts: false, ...(store.settings.share || {}) };
   return store.settings.share;
 }
 
@@ -525,9 +585,17 @@ function openShare() {
   if (ui.period === "week" || ui.period === "month") {
     options.kind = ui.period;
   }
+  // The photo is not saved, so a reopened sheet cannot show it; fall back to a flat background.
+  if (options.theme === "photo" && !sharePhoto) {
+    options.theme = "dark";
+  }
   const segment = (name, values) => `<div class="segmented" data-share="${name}">${values
     .map(([value, label]) => `<button data-value="${value}" class="${options[name] === value ? "on" : ""}">${label}</button>`)
     .join("")}</div>`;
+  const swatches = CARD_BACKGROUNDS
+    .map(([value, fill]) => `<button class="swatch swatch-${value} ${options.theme === value ? "on" : ""}" data-bg="${value}"
+      aria-label="${t(value)}" aria-pressed="${options.theme === value}" title="${t(value)}"${fill ? ` style="background:${fill}"` : ""}>${value === "photo" ? photoGlyph() : ""}</button>`)
+    .join("");
 
   openSheet(`
     <div class="sheet-head">
@@ -537,9 +605,15 @@ function openShare() {
     </div>
     <div class="share-controls">
       ${segment("kind", [["day", t("day")], ["week", t("week")], ["month", t("month")]])}
-      <div class="share-row">
-        ${segment("format", [["story", t("story")], ["square", t("square")]])}
-        ${segment("theme", [["light", t("light")], ["dark", t("dark")], ["navy", t("navy")]])}
+      ${segment("format", [["story", t("story")], ["square", t("square")]])}
+      <div class="bg-picker">
+        <div class="bg-label">${t("background")} <span id="shareBgName">${t(options.theme)}</span></div>
+        <div class="swatches">${swatches}</div>
+        <input type="file" accept="image/*" id="sharePhotoInput" hidden>
+      </div>
+      <div class="switch-row" id="shareInkRow" ${options.theme === "transparent" ? "" : "hidden"}>
+        <span>${t("textColor")}</span>
+        ${segment("ink", [["light", t("light")], ["dark", t("dark")]])}
       </div>
       <label class="switch-row"><span>${t("hideAmounts")}</span><input type="checkbox" class="switch" id="shareHide" ${options.hideAmounts ? "checked" : ""}></label>
     </div>
@@ -549,7 +623,45 @@ function openShare() {
       <button class="btn primary" id="shareSend">${t("shareImage")}</button>
     </div>`);
 
-  const redraw = () => drawShareCard($("#shareCanvas"), buildShareData(options.kind), options);
+  const redraw = () => {
+    const canvas = $("#shareCanvas");
+    canvas.classList.toggle("is-transparent", options.theme === "transparent");
+    canvas.classList.toggle("ink-dark", options.ink === "dark");
+    drawShareCard(canvas, buildShareData(options.kind), options);
+  };
+  const selectBackground = (value) => {
+    options.theme = value;
+    document.querySelectorAll("[data-bg]").forEach((b) => {
+      b.classList.toggle("on", b.dataset.bg === value);
+      b.setAttribute("aria-pressed", String(b.dataset.bg === value));
+    });
+    $("#shareBgName").textContent = t(value);
+    $("#shareInkRow").hidden = value !== "transparent";
+    persist();
+    redraw();
+  };
+  document.querySelectorAll("[data-bg]").forEach((button) => {
+    button.onclick = () => {
+      if (button.dataset.bg === "photo") {
+        $("#sharePhotoInput").click();
+        return;
+      }
+      selectBackground(button.dataset.bg);
+    };
+  });
+  $("#sharePhotoInput").onchange = async (event) => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) {
+      return;
+    }
+    try {
+      sharePhoto = await loadPhoto(file);
+      selectBackground("photo");
+    } catch {
+      // unreadable image: keep the current background
+    }
+    event.target.value = "";
+  };
   document.querySelectorAll("[data-share]").forEach((group) => {
     group.onclick = (event) => {
       const button = event.target.closest("[data-value]");
@@ -570,6 +682,27 @@ function openShare() {
   $("#shareSave").onclick = () => exportCard(false);
   $("#shareSend").onclick = () => exportCard(true);
   redraw();
+}
+
+function loadPhoto(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("image"));
+    };
+    image.src = url;
+  });
+}
+
+function photoGlyph() {
+  return `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/></svg>`;
 }
 
 function exportCard(viaShareSheet) {

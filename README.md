@@ -18,7 +18,7 @@ Installable web app (PWA) for iPhone and Android, works offline, data stays on t
 - **Budgets** â€“ monthly total and per category.
 - **Regions** â€“ 21 regions set currency, number/date format, voice language, week start and app language
   (English, Bahasa Indonesia, ç¹é«”ä¸­æ–‡, ç®€ä½“ä¸­æ–‡); each can be overridden.
-- **Share card** â€“ Strava-style image of your real day / week / month: story or square, light / dark / navy,
+- **Share card** â€“ Strava-style image of your real day / week / month: story or square, 8 colour and gradient backgrounds, a transparent sticker (PNG) or your own photo,
   optional *hide amounts*. Shares through the phone's share sheet.
 - **Data** â€“ CSV export, JSON backup / restore, persistent storage request, works offline.
 
