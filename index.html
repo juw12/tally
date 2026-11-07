@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f5f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Tally">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="stylesheet" href="app.css">
+<title>Tally</title>
+</head>
+<body>
+  <header class="topbar">
+    <div class="title-row">
+      <h1 id="screenTitle">Overview</h1>
+      <button id="shareButton" class="icon-btn" aria-label="Share">
+        <svg viewBox="0 0 24 24"><path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>
+      </button>
+    </div>
+    <div class="period" id="periodBar">
+      <div class="segmented" role="tablist" aria-label="Period">
+        <button data-period="week" data-i18n="week">Week</button>
+        <button data-period="month" data-i18n="month">Month</button>
+        <button data-period="year" data-i18n="year">Year</button>
+      </div>
+      <div class="stepper">
+        <button id="prevPeriod" aria-label="Previous period"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <span id="periodLabel"></span>
+        <button id="nextPeriod" aria-label="Next period"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="view-overview" class="view"></section>
+    <section id="view-transactions" class="view" hidden></section>
+    <section id="view-budgets" class="view" hidden></section>
+    <section id="view-settings" class="view" hidden></section>
+  </main>
+
+  <nav class="tabbar" aria-label="Sections">
+    <button data-tab="overview">
+      <svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span data-i18n="overview">Overview</span>
+    </button>
+    <button data-tab="transactions">
+      <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span data-i18n="activity">Activity</span>
+    </button>
+    <button id="recordButton" class="record-tab" aria-label="Record expense by voice">
+      <span><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span>
+    </button>
+    <button data-tab="budgets">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.4 6.4"/></svg><span data-i18n="budgets">Budgets</span>
+    </button>
+    <button data-tab="settings">
+      <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span data-i18n="settings">Settings</span>
+    </button>
+  </nav>
+
+  <div class="scrim" id="scrim" hidden></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" hidden></div>
+
+  <div class="toast" id="toast" role="status" hidden>
+    <span id="toastText"></span>
+    <span id="toastActions"></span>
+  </div>
+
+<script src="i18n.js"></script>
+<script src="parse.js"></script>
+<script src="app.js"></script>
+<script src="share.js"></script>
+</body>
+</html>

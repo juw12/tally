@@ -1,0 +1,5 @@
+_check/*.png
+_check/audit-*/
+_check/cards/
+_check/judge*
+_check/__pycache__/
