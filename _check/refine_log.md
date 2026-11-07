@@ -36,3 +36,16 @@ Objective: share buttons visible 0/9 -> 9/9 phone/language combos; wrapped setti
 Judge items not done (redesign scope or not factual): bigger share preview (conflicts with buttons-visible gate), mic level animation,
 inline edit of parsed rows, suggested category limits, chart value labels. Seen in scrolled screenshot: budget card passes under the sticky header.
 Untested: real-phone voice and native share; transparent PNG in iOS/Instagram.
+
+## Open items after pass 2 (PR #1, merged ec656e9, SW tally-v11)
+| item | fix | check |
+|---|---|---|
+| bigger share preview | tap card / expand button opens it full size; Escape or tap closes | lightbox 636 px tall vs 304 px thumbnail; buttons stay visible |
+| mic level animation | CSS pulse rings while live (reduced-motion: static ring); status "Listening - N found" | animation present; count correct |
+| inline edit of parsed rows | tap a row: category + amount editor; remove button; edited rows are what is saved | saved [Lunch, Transport, 99], removed row not saved |
+| suggested limits | "Use suggested X" = mean of up to 3 fully tracked previous months, 2 significant digits | applies on tap; fits in Indonesian at 320 px |
+| chart value labels | peak and average labels (HTML overlay, 12 px), "Tap a bar to see that day" | labels present, >= 12 px |
+| header overlap | top bar casts a shadow once content scrolls under it | shadow on scroll, clears at top |
+| real-device testing | WebKit (Safari engine) smoke test added | renders, transparent PNG has clear corners, preview, typed entry |
+Gates: audit 77/77 screens, round-2 17/17, round-3 27/27, live check 8/8 + 6/6.
+Still untested: live speech recognition and native share on real phones; Instagram handling of the transparent sticker.
