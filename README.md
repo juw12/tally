@@ -9,6 +9,7 @@ Installable web app (PWA) for iPhone and Android, works offline, data stays on t
 
 ## Features
 - **Voice capture** â€“ tap the mic and talk, or use your keyboard's dictation (iOS, Gboard, Wispr Flow).
+  Works on iPhone home-screen apps and Firefox too: where the phone's own speech service is missing or silent, Tally records the clip itself and its speech server (Whisper on Cloudflare Workers AI, `api/worker.js`) writes it down. Audio is sent only while you record and is not stored.
   Several expenses per sentence; live preview while you speak; Edit / Undo after saving.
 - **Understands English, Bahasa Indonesia and Chinese** â€“ `120`, `$12.50`, `1,250`, `1.250.000`, `50k`, `50rb`,
   `2 juta`, `1.5è¬`, "twenty five"; yesterday / kemarin / æ˜¨å¤©, "3 days ago", å‰å¤© â€¦

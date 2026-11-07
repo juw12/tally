@@ -905,7 +905,7 @@ function openRecorder() {
       <button class="manual" id="recManual">${t("manual")}</button>
     </div>`, cancelListening);
 
-  $("#recMic").onclick = () => (recognizer ? stopListening() : startListening());
+  $("#recMic").onclick = () => (voiceActive() ? stopListening() : beginVoice());
   heardSource = "";
   heardRows = [];
   heardEditing = -1;
@@ -948,7 +948,15 @@ function openRecorder() {
     openEditor(null);
   };
 
-  if (Recognition) {
+  beginVoice();
+}
+
+// Pick the voice engine: the phone's own speech service when it works here, otherwise Tally's
+// recorder + speech server (iPhone, Firefox, blocked Google speech). Typing is the last resort.
+function beginVoice() {
+  if (TallyVoice.preferRecorder(Boolean(Recognition))) {
+    startRecorder();
+  } else if (Recognition) {
     startListening();
   } else {
     $("#recStatus").textContent = t("useKeyboardMic");
@@ -957,12 +965,16 @@ function openRecorder() {
   }
 }
 
+function voiceActive() {
+  return Boolean(recognizer || recorderSession);
+}
+
 // What the status line says when there is nothing to warn about.
 function recorderIdleStatus(found = 0) {
-  if (recognizer) {
+  if (voiceActive()) {
     return found ? t("listeningFound", { n: found }) : t("listening");
   }
-  return Recognition ? "" : t("useKeyboardMic");
+  return Recognition || TallyVoice.recorderSupported() ? "" : t("useKeyboardMic");
 }
 
 // Parsed rows in the record sheet. Edits and removals stick until the text itself changes.
@@ -1009,7 +1021,7 @@ function updateRecorderStatus(text, fromVoice) {
   const found = heardRows.filter((row) => !row.removed).length;
   if (!fromVoice) {
     status.textContent = text.trim().length > 2 && !heardRows.length ? t("noAmount") : recorderIdleStatus(found);
-  } else if (recognizer) {
+  } else if (voiceActive()) {
     status.textContent = recorderIdleStatus(found);
   }
 }
@@ -1063,12 +1075,28 @@ function startListening() {
   recognizer.interimResults = true;
   recognizer.continuous = false;
   let heard = "";
+  let gotAudio = false;
+  const current = recognizer;
+  recognizer.onaudiostart = () => {
+    gotAudio = true;
+  };
   recognizer.onresult = (event) => {
+    gotAudio = true;
     heard = [...event.results].map((r) => r[0].transcript).join(" ").trim();
     showHeard(heard, true);
   };
+  // Some phones (iPhone home-screen apps) accept start() and then never deliver audio: switch engines.
+  setTimeout(() => {
+    if (recognizer === current && !gotAudio && !listeningCancelled) {
+      switchToRecorder();
+    }
+  }, 4500);
   recognizer.onerror = (event) => {
     if (event.error === "aborted") {
+      return;
+    }
+    if (SWITCH_ERRORS.includes(event.error) && TallyVoice.recorderSupported() && navigator.onLine !== false) {
+      switchToRecorder();
       return;
     }
     // "no-speech" is worth a retry; everything else means voice will not work right now.
@@ -1091,6 +1119,91 @@ function startListening() {
     recognizer = null;
     voiceFallback("voiceStopped", true);
   }
+}
+
+// Browser speech-service failures that Tally's own recorder can work around.
+const SWITCH_ERRORS = ["service-not-allowed", "not-allowed", "network", "language-not-supported"];
+
+function switchToRecorder() {
+  const old = recognizer;
+  if (old) {
+    old.onresult = old.onerror = old.onend = old.onaudiostart = null;
+    try {
+      old.abort();
+    } catch {
+      // already stopped
+    }
+  }
+  recognizer = null;
+  TallyVoice.rememberRecorder();
+  if ($("#recMic")) {
+    startRecorder();
+  }
+}
+
+// Tally's own recorder: records, then the speech server writes it down.
+let recorderSession = null;
+const RECORDER_ERRORS = {
+  blocked: "micBlocked",
+  nomic: "noMic",
+  offline: "voiceOffline",
+  network: "voiceNetwork",
+  busy: "voiceBusy",
+  server: "voiceStopped",
+  nospeech: "noSpeech",
+  needtap: "voiceTapToTalk",
+};
+
+function startRecorder() {
+  listeningCancelled = false;
+  if (navigator.onLine === false) {
+    voiceFallback("voiceOffline", true);
+    return;
+  }
+  const mic = $("#recMic");
+  const status = $("#recStatus");
+  const session = TallyVoice.create({
+    lang: store.settings.lang,
+    onLevel: (level) => $("#recMic")?.style.setProperty("--level", level.toFixed(2)),
+    onState: (state) => {
+      const line = $("#recStatus");
+      if (!line) {
+        return;
+      }
+      line.classList.remove("warn");
+      line.textContent = state === "transcribing" ? t("transcribing") : t("listening");
+      if (state === "transcribing") {
+        $("#recMic")?.classList.remove("live");
+      }
+    },
+  });
+  recorderSession = session;
+  mic.hidden = false;
+  mic.classList.add("live");
+  status.classList.remove("warn");
+  status.textContent = t("listening");
+  session.start().then((text) => {
+    if (recorderSession !== session) {
+      return;
+    }
+    recorderSession = null;
+    $("#recMic")?.classList.remove("live");
+    if (listeningCancelled || !$("#recStatus")) {
+      return;
+    }
+    showHeard(text, true);
+    commitHeard(text);
+  }).catch((err) => {
+    if (recorderSession === session) {
+      recorderSession = null;
+    }
+    $("#recMic")?.classList.remove("live");
+    if (listeningCancelled || (err && err.code === "cancelled")) {
+      return;
+    }
+    const code = err && err.code;
+    voiceFallback(RECORDER_ERRORS[code] || "voiceStopped", code !== "nospeech" && code !== "needtap");
+  });
 }
 
 // Speech errors from Chrome (Android) and Safari (iOS) mapped to plain messages.
@@ -1122,12 +1235,19 @@ function stopListening() {
   if (recognizer) {
     recognizer.stop();
   }
+  if (recorderSession) {
+    recorderSession.stop();
+  }
 }
 
 function cancelListening() {
   listeningCancelled = true;
   if (recognizer) {
     recognizer.abort();
+  }
+  if (recorderSession) {
+    recorderSession.cancel();
+    recorderSession = null;
   }
 }
 
