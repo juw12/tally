@@ -637,6 +637,7 @@ function openShare() {
     canvas.classList.toggle("is-transparent", options.theme === "transparent");
     canvas.classList.toggle("ink-dark", options.ink === "dark");
     drawShareCard(canvas, buildShareData(options.kind), options);
+    prepareShareFile(canvas, options.kind);
   };
   const openLightbox = () => {
     const canvas = $("#shareCanvas");
@@ -743,19 +744,45 @@ function photoGlyph() {
     <rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/></svg>`;
 }
 
-function exportCard(viaShareSheet) {
-  const canvas = $("#shareCanvas");
-  const name = `tally-${shareOptions().kind}-${keyOf(today())}.png`;
-  canvas.toBlob(async (blob) => {
-    const file = new File([blob], name, { type: "image/png" });
-    if (viaShareSheet && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({ files: [file] });
-      } catch {
-        // user closed the share sheet
-      }
-      return;
+// The PNG is encoded as soon as the preview changes, so tapping Share can call
+// navigator.share() immediately. Safari (and Chrome after a delay) refuses to open the
+// share sheet once the tap's "user activation" has passed, e.g. after an async toBlob.
+let shareFile = null;
+let shareFileToken = 0;
+
+// Takes the kind as an argument: calling shareOptions() here would replace the settings
+// object the open sheet is editing.
+function prepareShareFile(canvas, kind) {
+  const token = ++shareFileToken;
+  shareFile = null;
+  const name = `tally-${kind}-${keyOf(today())}.png`;
+  canvas.toBlob((blob) => {
+    if (blob && token === shareFileToken) {
+      shareFile = new File([blob], name, { type: "image/png" });
     }
-    download(name, blob, "image/png");
   }, "image/png");
+}
+
+function saveFile(file) {
+  download(file.name, file, "image/png");
+  showToast(t("imageSaved"));
+}
+
+function exportCard(viaShareSheet) {
+  const ready = shareFile;
+  if (!ready) {
+    // Still encoding (only right after a change): try again in a moment.
+    setTimeout(() => exportCard(viaShareSheet), 150);
+    return;
+  }
+  if (viaShareSheet && navigator.canShare && navigator.canShare({ files: [ready] })) {
+    navigator.share({ files: [ready] }).catch((error) => {
+      if (error && error.name === "AbortError") {
+        return; // the user closed the share sheet
+      }
+      saveFile(ready); // share sheet refused: keep the image anyway
+    });
+    return;
+  }
+  saveFile(ready);
 }

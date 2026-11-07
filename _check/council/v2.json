@@ -1,0 +1,146 @@
+{
+  "mode": "score",
+  "models": [
+    "Pega-Vision",
+    "Pega-Thinking",
+    "GLM-5.3-Flash"
+  ],
+  "weights": {
+    "S1": 0.25,
+    "S2": 0.25,
+    "S3": 0.2,
+    "S4": 0.15,
+    "S5": 0.15
+  },
+  "judges": {
+    "Pega-Vision": {
+      "scores": {
+        "S1": 8.0,
+        "S2": 9.0,
+        "S3": 9.0,
+        "S4": 8.0,
+        "S5": 9.0
+      },
+      "evidence": {
+        "S1": "Clean light/dark hierarchy, but the Siri instructions show 127.0.0.1 and budget suggestion rows feel dense.",
+        "S2": "both expenses are parsed live and saved when you stop talking; a toast offers Edit and Undo",
+        "S3": "Budget card: amount used, % used, per-day allowance... month-end projection; Tapping a chart bar opens that day's expenses",
+        "S4": "Story share cards keep every element inside Instagram/TikTok's UI-free zone, but Square/dark/language previews are not fully shown.",
+        "S5": "Works offline... CSV export, JSON backup/restore... storage-full warning, persistent storage request"
+      },
+      "fixes": [
+        "Replace the 127.0.0.1 Siri instruction with the live host or a dynamic URL in all shipped screenshots and strings.",
+        "Validate and improve share-card previews across Square, dark, and all languages, not just the light Story card.",
+        "Add category drill-down and a stronger backup story, such as automatic backup or clearer restore guidance."
+      ],
+      "total": 8.6,
+      "seconds": 25.1
+    },
+    "Pega-Thinking": {
+      "scores": {
+        "S1": 8.0,
+        "S2": 10.0,
+        "S3": 10.0,
+        "S4": 9.0,
+        "S5": 10.0
+      },
+      "evidence": {
+        "S1": "Clean typography and consistent light/dark modes across 12 screens; minor rough edges: dark Activity screen rows feel slightly cramped, share sheet packs many controls into a small preview area.",
+        "S2": "One-tap mic, live 'Listening - 2 found' status, parsed rows editable before save, 'No amount found' immediate, toast Edit/Undo plus 10-minute 'Just added' chip — matches the 10 anchor exactly.",
+        "S3": "Totals, -24% vs same point last month, per-category %, budget pace line, per-day allowance, month-end projection, peak/average labels, tap-bar-to-drill-down — covers totals + trend + categories + pace + comparisons + drill-down.",
+        "S4": "Story card is poster-grade with clear hierarchy, NT$3,950 hero, budget-pace line, 4-stat grid, top-3 categories; content verified inside y=250–1670 UI-free zone; only the in-app share-sheet preview thumbnail is small.",
+        "S5": "Empty states are CTAs with mic badge + two >=44 px buttons; 4-language speech failure messages with focus fallback; offline pre-check; typed entry works offline; SW, CSV/JSON backup, last-backup date, storage-full warning, persistent storage request."
+      },
+      "fixes": [
+        "Tighten dark-mode Activity row spacing and vertical rhythm so dense lists breathe like the light variant.",
+        "Enlarge the share-sheet preview thumbnail (or add a full-size tap target) so users can judge the card before tapping Share.",
+        "Reduce visual density on the Share sheet — group background/text controls and move 'Hide amounts' closer to the preview to declutter the right column."
+      ],
+      "total": 9.35,
+      "seconds": 9.4
+    },
+    "GLM-5.3-Flash": {
+      "scores": {
+        "S1": 8.0,
+        "S2": 9.0,
+        "S3": 9.0,
+        "S4": 9.0,
+        "S5": 9.0
+      },
+      "evidence": {
+        "S1": "Clean, consistent grid across light, dark and EN/ID/ZH screens (e.g., identical Overview structure in '總覽' and 'Pengaturan'). Rough edges: in both record-sheet screens the dimmed background shows the Overview clipped mid-element behind the sheet, and the story card's chart leaves a large empty middle between the 'Budget pace' dashed line and the data hugging the bottom-left.",
+        "S2": "'both expenses are parsed live and saved when you stop talking; a toast offers Edit and Undo', live status 'Listening - 2 found', per-row fix ('Tap a row to change its category or amount'), and a 'Just added ... Edit | Undo' chip 'for 10 minutes'. Minor friction: the same sheet shows a Save button next to voice auto-save, so the save state is ambiguous; typed path still needs a Save tap.",
+        "S3": "Totals + trend + categories plus pace and comparison: 'At this pace: $39,159 by month end. $9,159 over budget', '+100% vs same point last month ($4,570)', per-day allowance '$869 ... remaining 24 days', today tick, and drill-down 'Tap a bar to see that day'. Missing: tap-through on Overview category rows, so category-level drill-down/comparison requires the Activity filter.",
+        "S4": "The 1080x1920 story card is poster-grade: clear hierarchy, 'all content sits between y=250 and y=1670' (UI-free zone), sticker 'exports with real alpha', 'Hide amounts' percentages-only. Only one mode/theme/language is shown full-size (Square and the 8 backgrounds unverified), and the chart's sparse middle is a minor layout nit.",
+        "S5": "Strong coverage: empty states are CTAs ('Log by voice' / 'Add manually', >=44 px), specific per-failure voice errors ('offline (Android speech needs internet; checked before starting)'), 'a recognizer that refuses to start no longer breaks the sheet', 'storage-full warning, persistent storage request', share fallback to save. Gap: backup is manual (CSV/JSON + last-backup date), so 'data never lost' is not fully guaranteed; verification is emulation, not physical devices."
+      },
+      "fixes": [
+        "S1: erase the last visual rough edges - scroll the background to top (or mask it) so the record sheet's scrim doesn't show the Overview clipped mid-element, and rebalance the story card chart (e.g., area fill or tighter y-scale) so the empty middle reads intentional.",
+        "S2: make the record sheet's save model unambiguous - after voice auto-save, swap the Save button for a saved/undo state (or disable it) so the same sheet can't imply duplicate entry or a missed save.",
+        "S3: make Overview category rows tappable through to a pre-filtered Activity view, completing drill-down beyond the day-bar tap and enabling category-level 'why am I over?' investigation."
+      ],
+      "total": 8.75,
+      "seconds": 57.0
+    }
+  },
+  "quorum": 3,
+  "council_score": 8.75,
+  "criterion_median": {
+    "S1": 8.0,
+    "S2": 9.0,
+    "S3": 9.0,
+    "S4": 9.0,
+    "S5": 9.0
+  },
+  "criterion_spread": {
+    "S1": 0.0,
+    "S2": 1.0,
+    "S3": 1.0,
+    "S4": 1.0,
+    "S5": 1.0
+  },
+  "split_criteria": [],
+  "judge_total_range": [
+    8.6,
+    9.35
+  ],
+  "fixes": [
+    {
+      "judge": "Pega-Vision",
+      "fix": "Replace the 127.0.0.1 Siri instruction with the live host or a dynamic URL in all shipped screenshots and strings."
+    },
+    {
+      "judge": "Pega-Vision",
+      "fix": "Validate and improve share-card previews across Square, dark, and all languages, not just the light Story card."
+    },
+    {
+      "judge": "Pega-Vision",
+      "fix": "Add category drill-down and a stronger backup story, such as automatic backup or clearer restore guidance."
+    },
+    {
+      "judge": "Pega-Thinking",
+      "fix": "Tighten dark-mode Activity row spacing and vertical rhythm so dense lists breathe like the light variant."
+    },
+    {
+      "judge": "Pega-Thinking",
+      "fix": "Enlarge the share-sheet preview thumbnail (or add a full-size tap target) so users can judge the card before tapping Share."
+    },
+    {
+      "judge": "Pega-Thinking",
+      "fix": "Reduce visual density on the Share sheet — group background/text controls and move 'Hide amounts' closer to the preview to declutter the right column."
+    },
+    {
+      "judge": "GLM-5.3-Flash",
+      "fix": "S1: erase the last visual rough edges - scroll the background to top (or mask it) so the record sheet's scrim doesn't show the Overview clipped mid-element, and rebalance the story card chart (e.g., area fill or tighter y-scale) so the empty middle reads intentional."
+    },
+    {
+      "judge": "GLM-5.3-Flash",
+      "fix": "S2: make the record sheet's save model unambiguous - after voice auto-save, swap the Save button for a saved/undo state (or disable it) so the same sheet can't imply duplicate entry or a missed save."
+    },
+    {
+      "judge": "GLM-5.3-Flash",
+      "fix": "S3: make Overview category rows tappable through to a pre-filtered Activity view, completing drill-down beyond the day-bar tap and enabling category-level 'why am I over?' investigation."
+    }
+  ],
+  "label": "council-judged (3 judges)"
+}

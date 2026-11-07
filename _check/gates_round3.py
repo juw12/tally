@@ -133,7 +133,7 @@ with sync_playwright() as playwright:
         applied = page.evaluate(f"store.settings.budgets[{json.dumps(category[0])}]")
         check(f"tapping a suggestion sets that limit ({category[0]} = {applied})", applied == category[1])
         value = page.input_value(f"[data-budget='{category[0]}']")
-        check(f"limit field shows the applied value ({value})", value == str(category[1]))
+        check(f"limit field shows the applied value ({value})", value.replace(",", "") == str(category[1]))
     overflow = page.evaluate("document.documentElement.scrollWidth > window.innerWidth")
     check("budgets page has no horizontal overflow", not overflow)
     all_errors += errors
