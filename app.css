@@ -157,6 +157,12 @@ select.field { width: auto; }
 .empty { text-align: center; color: var(--muted); padding: 48px 20px; font-size: 14px; }
 .empty strong { display: block; color: var(--text); font-size: 16px; margin-bottom: 4px; }
 .empty.cta { padding: 32px 20px 24px; }
+.just-added { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; padding: 6px 6px 6px 14px; border-radius: 12px; background: var(--panel, #fff); border: 1px solid var(--line); font-size: 13px; }
+.just-added .label { font-weight: 600; white-space: nowrap; }
+.just-added .what { flex: 1; min-width: 0; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.just-added .link { min-height: 44px; padding: 0 6px; }
+.just-added .icon-x { width: 44px; height: 44px; border: 0; background: none; color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; }
+#recStatus.warn { color: var(--negative); }
 .empty .empty-mic { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto 14px; border-radius: 50%; background: var(--accent-soft, color-mix(in srgb, var(--accent) 14%, transparent)); }
 .empty .empty-mic svg { width: 24px; height: 24px; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; }
 .empty .empty-mic rect { fill: var(--accent); stroke: none; }

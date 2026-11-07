@@ -66,3 +66,15 @@ Precedents: Toshl (today/pace marker on budget bars), Copilot/Monarch (empty sta
 
 Test-harness fixes this round: WebKit now bypasses the corporate proxy for 127.0.0.1 (it was returning 400 "Request on loopback from external IP").
 Open judge suggestions (not done): persistent "just saved" chip with Edit/Undo (GLM, both rounds); explicit mic-denied / no-speech-support messaging; Activity row spacing; Indonesian "TANPA TANGAN DENGAN SIRI" wording; currency-formatted budget inputs.
+| 2026-11-07 15:47 | council pair | B wins: True | votes A/B/tie 0/2/0 | council-judged (2 judges) |
+| 2026-11-07 15:48 | council score | 8.75 | split: - | Pega-Vision=8.6, Pega-Thinking=9.35, GLM-5.3-Flash=8.75 |
+
+
+## Real-device round (2026-11-07) - council-judged (3 judges)
+| round | change | gates | judge score | pairwise | kept? | note |
+|---|---|---|---|---|---|---|
+| v2 | speech errors mapped (not-allowed, service-not-allowed, audio-capture, network, language-not-supported, no-speech) + offline pre-check + start() guard, all hand over to typing; share encodes PNG ahead so navigator.share runs inside the tap (iOS), refused share saves image, AbortError silent; persistent "Just added" chip with Edit/Undo (10 min); grouped budget inputs; ID Siri heading; SW v13 | audit 77/77, extra, round-2, round-3, round-4 24/24, NEW round-5 60/60 (Android Chrome + iPhone WebKit emulation), shoot_share all pass | 8.75 (8.6 / 9.35 / 8.75) vs v1 8.95 - flat, within judge noise | v2 wins 2-0 | SHIPPED on objective evidence | these are real-device bug fixes, not taste; judged score rule (+0.3) not met, so logged as a deliberate exception |
+
+Bugs caught by the new gates before release: new i18n key `voiceLanguage` shadowed the Settings label "Voice language" (renamed voiceLangUnsupported); `prepareShareFile` called shareOptions(), which replaced the settings object under the open sheet and broke the photo background (now passes kind in).
+Network notes: the old local proxy (localhost:3128) is gone; the corporate proxy is proxy8.intra:80 (used by live_check.py and gh). api.github.com is blocked without it.
+Still not verified on hardware: real microphone + speech engine, the native share sheet UI, Instagram's handling of the sticker. phone_check.py is ready for the OPPO.

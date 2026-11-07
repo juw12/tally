@@ -1,0 +1,48 @@
+{
+  "mode": "pair",
+  "models": [
+    "Pega-Vision",
+    "Pega-Thinking",
+    "GLM-5.3-Flash"
+  ],
+  "judges": {
+    "Pega-Vision": {
+      "picks_AB_BA": [
+        null,
+        null
+      ],
+      "vote": null,
+      "reasons": []
+    },
+    "Pega-Thinking": {
+      "picks_AB_BA": [
+        "B",
+        "B"
+      ],
+      "vote": "B",
+      "reasons": [
+        "Both versions share identical screenshots and base feature descriptions, but VERSION 2 adds meaningful improvements to capture flow (persistent 10-minute 'Just added' chip vs 5-second toast), share robustness (synchronous PNG encoding for iOS Safari with save fallback), and error handling (specific speech-recognition failure messages in 4 languages, focus fallback to text field, real-device verification on Pixel 7 and iPhone 14). These improvements strengthen S2, S4, and S5 while S1 and S3 remain tied.",
+        "VERSION 1 adds a substantial 'real-device round' with meaningful improvements: a persistent 10-minute 'Just added' chip for correction/undo (S2), iOS Safari share timing fix with fallback (S4), and specific speech-recognition failure messages in 4 languages with focus management plus grouped budget number entry (S5). These directly strengthen capture flow, share reliability, and robustness over VERSION 2's identical base."
+      ]
+    },
+    "GLM-5.3-Flash": {
+      "picks_AB_BA": [
+        "B",
+        "B"
+      ],
+      "vote": "B",
+      "reasons": [
+        "Version 2 is a strict superset with identical visuals plus meaningful gains: a persistent 10-minute Edit/Undo chip and specific multilingual speech-failure handling improve capture/correction (S2), and the synchronous share-sheet fix plus offline/typed fallbacks strengthen robustness (S5), while grouped budget numbers add minor polish (S1). Version 1 offers nothing Version 2 lacks.",
+        "Version 1 contains everything in Version 2 plus the real-device round: a persistent 'Just added' chip extending edit/undo beyond the toast, specific speech-failure messages with text-field fallback, synchronous share-sheet invocation, and grouped budget numbers (visible as '30,000' vs '30000' in the screenshots). These directly strengthen S2 capture/correction and S5 robustness with minor gains on S1/S4, while S3 is identical."
+      ]
+    }
+  },
+  "votes": {
+    "A": 0,
+    "B": 2,
+    "tie": 0
+  },
+  "quorum": 2,
+  "b_wins": true,
+  "label": "council-judged (2 judges)"
+}

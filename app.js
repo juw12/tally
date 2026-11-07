@@ -121,6 +121,11 @@ function compactMoney(value) {
   }
 }
 
+// Budget fields show "30,000" (or "30.000" in id-ID); parseLocalNumber reads either back.
+function groupedNumber(value) {
+  return value ? new Intl.NumberFormat(locale(), { maximumFractionDigits: 2 }).format(value) : "";
+}
+
 // Typed amounts follow the region: "1.234,5" in id-ID / de-DE, "1,234.5" elsewhere.
 function parseLocalNumber(text) {
   const decimal = new Intl.NumberFormat(locale()).format(1.5).charAt(1);
@@ -160,7 +165,7 @@ function txRowHtml(expense, showDate = false) {
 }
 
 // ---------- Periods ----------
-const ui = { tab: "overview", period: "month", anchor: today(), query: "", category: "", day: null };
+const ui = { tab: "overview", period: "month", anchor: today(), query: "", category: "", day: null, justAdded: null };
 
 function rangeFor(period, anchor) {
   if (period === "week") {
@@ -250,6 +255,7 @@ function renderOverview() {
   const previousTotal = sum(store.expenses.filter((e) => inRange(e, previousRange)));
 
   view.innerHTML = [
+    justAddedHtml(),
     heroHtml(current, previousTotal),
     statsHtml(current),
     ui.period === "month" ? budgetSummaryHtml(current) : "",
@@ -487,6 +493,7 @@ function renderTransactionList() {
   const scope = ui.day ? dayLabel(ui.day) : ui.query ? t("allTime") : periodLabel(ui.period, range);
   const count = items.length === 1 ? t("expense") : t("expenses", { n: items.length });
   let html = ui.day ? `<button class="filter-chip" data-clear-day>${dayLabel(ui.day)} · ${t("showAll")}</button>` : "";
+  html = justAddedHtml() + html;
   html += `<div class="summary-line num"><span>${scope} · ${count}</span><span>${money(sum(items))}</span></div>`;
   if (!items.length) {
     html += ui.query
@@ -574,7 +581,7 @@ function renderBudgets() {
       <div class="top">
         <span class="swatch" style="background:${CATEGORY_COLORS[cat]}"></span>
         <span class="name">${catName(cat)}</span>
-        <input class="field num" inputmode="decimal" placeholder="${t("setLimit")}" data-budget="${cat}" value="${store.settings.budgets[cat] || ""}">
+        <input class="field num" inputmode="decimal" placeholder="${t("setLimit")}" data-budget="${cat}" value="${groupedNumber(store.settings.budgets[cat])}">
       </div>
       ${statusHtml(spentBy[cat] || 0, store.settings.budgets[cat] || 0, cat)}
     </div>`).join("");
@@ -585,7 +592,7 @@ function renderBudgets() {
       <div class="panel budget-row">
         <div class="top">
           <span class="name"><strong>${t("monthlyBudget")}</strong></span>
-          <input class="field num" inputmode="decimal" placeholder="${t("notSet")}" data-budget="__total" value="${store.settings.budgetTotal || ""}">
+          <input class="field num" inputmode="decimal" placeholder="${t("notSet")}" data-budget="__total" value="${groupedNumber(store.settings.budgetTotal)}">
         </div>
         ${statusHtml(current.total, store.settings.budgetTotal, "__total")}
       </div>
@@ -733,11 +740,43 @@ async function restoreBackup(event) {
 // ---------- Adding expenses ----------
 let lastAdded = [];
 
+function undoLastAdded() {
+  store.expenses = store.expenses.filter((e) => !lastAdded.includes(e.id));
+  ui.justAdded = null;
+  persist();
+  render();
+}
+
+// A quiet chip that keeps Edit/Undo reachable for 10 minutes after a voice entry,
+// so a missed toast never turns a correction into a hunt through Activity.
+const JUST_ADDED_MS = 10 * 60 * 1000;
+
+function justAddedHtml() {
+  const recent = ui.justAdded;
+  if (!recent || Date.now() - recent.at > JUST_ADDED_MS) {
+    return "";
+  }
+  const items = recent.ids.map((id) => store.expenses.find((e) => e.id === id)).filter(Boolean);
+  if (!items.length) {
+    return "";
+  }
+  const summary = items.slice(0, 2).map((e) => `${escapeHtml(e.desc)} ${money(e.amount)}`).join(" · ")
+    + (items.length > 2 ? ` +${items.length - 2}` : "");
+  const edit = items.length === 1 ? `<button class="link" data-edit="${items[0].id}">${t("edit")}</button>` : "";
+  return `<div class="just-added" role="status">
+    <span class="label">${t("justAdded")}</span>
+    <span class="what num">${summary}</span>
+    ${edit}<button class="link" data-undo-last>${t("undo")}</button>
+    <button class="icon-x" data-dismiss-added aria-label="${t("dismiss")}">×</button>
+  </div>`;
+}
+
 function addExpenses(parsed, spoken) {
   const stamp = Date.now();
   const added = parsed.map((e, i) => ({ ...e, id: `${stamp}-${i}`, created: stamp + i, raw: spoken, note: "" }));
   store.expenses.push(...added);
   lastAdded = added.map((e) => e.id);
+  ui.justAdded = { ids: lastAdded, at: Date.now() };
   persist();
   render();
   const label = added.length === 1
@@ -745,11 +784,7 @@ function addExpenses(parsed, spoken) {
     : t("addedN", { n: added.length, amount: money(sum(added)) });
   const undo = {
     label: t("undo"),
-    run: () => {
-      store.expenses = store.expenses.filter((e) => !lastAdded.includes(e.id));
-      persist();
-      render();
-    },
+    run: undoLastAdded,
   };
   const edit = { label: t("edit"), run: () => openEditor(added[0].id) };
   showToast(label, added.length === 1 ? [edit, undo] : [undo]);
@@ -1013,6 +1048,11 @@ function commitHeard(text) {
 
 function startListening() {
   listeningCancelled = false;
+  // Android Chrome sends audio to an online service; without a connection, go straight to typing.
+  if (navigator.onLine === false) {
+    voiceFallback("voiceOffline", true);
+    return;
+  }
   recognizer = new Recognition();
   recognizer.lang = store.settings.lang;
   recognizer.interimResults = true;
@@ -1023,10 +1063,11 @@ function startListening() {
     showHeard(heard, true);
   };
   recognizer.onerror = (event) => {
-    const messages = { "not-allowed": t("micBlocked"), "no-speech": t("noSpeech") };
-    if ($("#recStatus")) {
-      $("#recStatus").textContent = messages[event.error] || t("voiceStopped");
+    if (event.error === "aborted") {
+      return;
     }
+    // "no-speech" is worth a retry; everything else means voice will not work right now.
+    voiceFallback(VOICE_ERRORS[event.error] || "voiceStopped", event.error !== "no-speech");
   };
   recognizer.onend = () => {
     recognizer = null;
@@ -1039,7 +1080,36 @@ function startListening() {
   };
   $("#recMic").classList.add("live");
   $("#recStatus").textContent = t("listening");
-  recognizer.start();
+  try {
+    recognizer.start();
+  } catch {
+    recognizer = null;
+    voiceFallback("voiceStopped", true);
+  }
+}
+
+// Speech errors from Chrome (Android) and Safari (iOS) mapped to plain messages.
+const VOICE_ERRORS = {
+  "not-allowed": "micBlocked",
+  "service-not-allowed": "micBlocked",
+  "audio-capture": "noMic",
+  network: "voiceOffline",
+  "language-not-supported": "voiceLangUnsupported",
+  "no-speech": "noSpeech",
+};
+
+// Show why voice stopped; when it cannot work, hand over to the text field.
+function voiceFallback(messageKey, switchToTyping) {
+  const status = $("#recStatus");
+  if (!status) {
+    return;
+  }
+  status.textContent = t(messageKey);
+  status.classList.add("warn");
+  $("#recMic")?.classList.remove("live");
+  if (switchToTyping) {
+    $("#recInput")?.focus();
+  }
 }
 
 // Stop = finish and save what was heard; cancel = closing the sheet discards it.
@@ -1177,6 +1247,11 @@ document.addEventListener("click", (event) => {
     openRecorder();
   } else if (event.target.closest("[data-add]")) {
     openEditor(null);
+  } else if (event.target.closest("[data-undo-last]")) {
+    undoLastAdded();
+  } else if (event.target.closest("[data-dismiss-added]")) {
+    ui.justAdded = null;
+    render();
   }
 });
 
