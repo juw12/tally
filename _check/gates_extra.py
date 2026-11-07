@@ -89,6 +89,15 @@ with sync_playwright() as p:
     with page.expect_download():
         page.click("#backup")
     check("backup date recorded", "Last backup" in page.inner_text("#view-settings .foot"))
+    # ---- Demo mode: sample data shown, nothing written to storage
+    page.evaluate("localStorage.clear()")
+    page.goto((APP / "index.html").as_uri() + "?demo=1")
+    page.wait_for_timeout(200)
+    check("demo shows sample expenses", page.locator("#view-overview .tx").count() >= 3)
+    page.click("#recordButton")
+    page.fill("#recInput", "coffee 4")
+    page.click("#recForm button")
+    check("demo never writes localStorage", page.evaluate("localStorage.getItem('tally.expenses.v1')") is None)
     check("no JS errors", not errors)
     browser.close()
 

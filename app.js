@@ -47,7 +47,12 @@ const store = {
   },
 };
 
+let demoMode = false;
+
 function persist() {
+  if (demoMode) {
+    return;
+  }
   try {
     localStorage.setItem(STORE_KEY, JSON.stringify(store.expenses));
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(store.settings));
@@ -1002,9 +1007,47 @@ document.addEventListener("change", (event) => {
   render();
 });
 
+// ---------- Demo data (?demo=1): sample expenses in memory only, never saved ----------
+const DEMO_SCALE = {
+  USD: 1, EUR: 0.92, GBP: 0.8, TWD: 30, HKD: 8, CNY: 7, IDR: 15000, SGD: 1.35, MYR: 4.5, PHP: 55,
+  THB: 35, VND: 24000, JPY: 150, KRW: 1300, INR: 80, AUD: 1.5, NZD: 1.6, CAD: 1.35, CHF: 0.9,
+};
+const DEMO_ITEMS = [
+  ["Lunch", "Food", 8, 16], ["Coffee", "Food", 3, 6], ["Dinner", "Food", 14, 40], ["Taxi", "Transport", 6, 20],
+  ["Metro", "Transport", 1, 3], ["Groceries", "Groceries", 20, 70], ["Pharmacy", "Health", 5, 25],
+  ["Movie", "Entertainment", 9, 18], ["Clothes", "Shopping", 25, 70], ["Phone bill", "Bills", 30, 30],
+];
+
+function loadDemo() {
+  demoMode = true;
+  let seed = 7;
+  const random = () => {
+    seed = (seed * 16807) % 2147483647;
+    return seed / 2147483647;
+  };
+  const scale = DEMO_SCALE[store.settings.currency] || 1;
+  const step = scale >= 1000 ? 1000 : scale >= 20 ? 5 : 0.5;
+  const expenses = [];
+  for (let offset = 40; offset >= 0; offset--) {
+    const day = addDays(today(), -offset);
+    const count = 1 + Math.floor(random() * 3);
+    for (let n = 0; n < count; n++) {
+      const [desc, cat, low, high] = DEMO_ITEMS[Math.floor(random() * DEMO_ITEMS.length)];
+      const amount = Math.max(step, Math.round(((low + random() * (high - low)) * scale) / step) * step);
+      const created = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 8 + Math.floor(random() * 13), Math.floor(random() * 60)).getTime();
+      expenses.push({ id: `demo-${offset}-${n}`, created, date: keyOf(day), desc, cat, amount, note: "", raw: "" });
+    }
+  }
+  store.expenses = expenses;
+  store.settings.budgetTotal = Math.round((1200 * scale) / step) * step;
+}
+
 // ---------- Start ----------
 applyLanguage();
 const params = new URLSearchParams(location.search);
+if (params.get("demo")) {
+  loadDemo();
+}
 render();
 if (params.get("add")) {
   const spoken = params.get("add");
