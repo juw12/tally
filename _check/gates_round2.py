@@ -78,7 +78,7 @@ with sync_playwright() as playwright:
     check("no-amount hint clears once an amount is typed", status_after != hint.strip())
     check(
         f"status falls back to the live state, not blank ({status_after!r})",
-        status_after in (listening_text, keyboard_text),
+        status_after.startswith(listening_text) or status_after == keyboard_text,
     )
     check("preview shows the parsed row", page.locator("#recPreview .tx").count() == 1)
     all_errors += errors

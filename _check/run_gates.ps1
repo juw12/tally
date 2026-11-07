@@ -14,6 +14,7 @@ $suites = @(
     @{ name = "shoot";       args = @("shoot.py") },
     @{ name = "shoot_share"; args = @("shoot_share.py") },
     @{ name = "gates_round2"; args = @("gates_round2.py") },
+    @{ name = "gates_round3"; args = @("gates_round3.py") },
     @{ name = "capture";     args = @("capture.py", $Label) }
 )
 foreach ($suite in $suites) {

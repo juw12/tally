@@ -344,7 +344,7 @@ function chartHtml(range, current) {
 
   const width = 320;
   const height = 150;
-  const top = 8;
+  const top = 22;
   const bottom = 18;
   const plot = height - top - bottom;
   const slot = width / buckets.length;
@@ -365,12 +365,24 @@ function chartHtml(range, current) {
   const averageLine = average ? `<line class="avg" x1="0" x2="${width}" y1="${averageY.toFixed(1)}" y2="${averageY.toFixed(1)}"/>` : "";
   const isYear = ui.period === "year";
   const peak = buckets.some((b) => b.value) ? max : 0;
+  const pct = (y) => `${((y / height) * 100).toFixed(1)}%`;
+  const peakLine = peak ? `<line class="grid" x1="0" x2="${width}" y1="${top}" y2="${top}"/>` : "";
+  const peakTick = peak ? `<span class="y-tick" style="top:${pct(top)}">${compactMoney(peak)}</span>` : "";
+  // Skip the average label when it would sit on top of the peak label.
+  const averageTick = average && averageY - top > 16
+    ? `<span class="y-tick avg" style="top:${pct(averageY)}">${t("avgShort")} ${compactMoney(average)}</span>`
+    : "";
+  const hint = !isYear && peak ? `<div class="chart-hint">${t("tapBarHint")}</div>` : "";
 
   return `<div class="block">
     <div class="block-head"><h2>${t(isYear ? "spendingByMonth" : "spendingByDay")}</h2></div>
     <div class="panel chart">
-      <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img">${bars}${averageLine}</svg>
+      <div class="chart-plot">
+        <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img">${peakLine}${bars}${averageLine}</svg>
+        ${peakTick}${averageTick}
+      </div>
       <div class="legend num"><span>${t(isYear ? "avgPerMonth" : "avgPerDay", { amount: compactMoney(average) })}</span><span>${t("peak", { amount: compactMoney(peak) })}</span></div>
+      ${hint}
     </div>
   </div>`;
 }
@@ -478,6 +490,42 @@ function renderTransactionList() {
 }
 
 // ---------- Budgets ----------
+// Round up to two significant digits: 1,276 -> 1,300; 1,523,000 -> 1,600,000.
+function niceCeil(value) {
+  const digits = Math.floor(Math.log10(Math.max(value, 1))) + 1;
+  const step = 10 ** Math.max(0, digits - 2);
+  return Math.ceil(value / step) * step;
+}
+
+// Average monthly spend over up to 3 previous months that were tracked from their first day.
+function suggestedLimits() {
+  const start = trackingStart();
+  const now = today();
+  const totals = {};
+  let months = 0;
+  for (let back = 1; back <= 3; back++) {
+    const monthStart = new Date(now.getFullYear(), now.getMonth() - back, 1);
+    if (monthStart < start) {
+      break;
+    }
+    const prefix = keyOf(monthStart).slice(0, 7);
+    for (const e of store.expenses) {
+      if (e.date.startsWith(prefix)) {
+        totals[e.cat] = (totals[e.cat] || 0) + e.amount;
+        totals.__total = (totals.__total || 0) + e.amount;
+      }
+    }
+    months++;
+  }
+  const suggestions = {};
+  for (const [key, total] of Object.entries(totals)) {
+    if (months && total > 0) {
+      suggestions[key] = niceCeil(total / months);
+    }
+  }
+  return suggestions;
+}
+
 function renderBudgets() {
   const range = rangeFor("month", today());
   const current = summarize(range);
@@ -487,9 +535,15 @@ function renderBudgets() {
   }
   const monthName = range.start.toLocaleDateString(locale(), { month: "long", year: "numeric" });
 
-  const statusHtml = (spent, budget) => {
+  const suggestions = suggestedLimits();
+  const whole = { maximumFractionDigits: 0, minimumFractionDigits: 0 };
+  const statusHtml = (spent, budget, key) => {
     if (!budget) {
-      return `<div class="status num"><span>${t("spentAmount", { amount: money(spent) })}</span><span>${t("noLimit")}</span></div>`;
+      const suggestion = suggestions[key];
+      const right = suggestion
+        ? `<button class="link suggest" data-suggest="${key}" data-amount="${suggestion}">${t("useSuggested", { amount: money(suggestion, whole) })}</button>`
+        : `<span>${t("noLimit")}</span>`;
+      return `<div class="status num"><span>${t("spentAmount", { amount: money(spent) })}</span>${right}</div>`;
     }
     const ratio = spent / budget;
     const left = budget - spent;
@@ -503,7 +557,7 @@ function renderBudgets() {
         <span class="name">${catName(cat)}</span>
         <input class="field num" inputmode="decimal" placeholder="${t("setLimit")}" data-budget="${cat}" value="${store.settings.budgets[cat] || ""}">
       </div>
-      ${statusHtml(spentBy[cat] || 0, store.settings.budgets[cat] || 0)}
+      ${statusHtml(spentBy[cat] || 0, store.settings.budgets[cat] || 0, cat)}
     </div>`).join("");
 
   $("#view-budgets").innerHTML = `
@@ -514,7 +568,7 @@ function renderBudgets() {
           <span class="name"><strong>${t("monthlyBudget")}</strong></span>
           <input class="field num" inputmode="decimal" placeholder="${t("notSet")}" data-budget="__total" value="${store.settings.budgetTotal || ""}">
         </div>
-        ${statusHtml(current.total, store.settings.budgetTotal)}
+        ${statusHtml(current.total, store.settings.budgetTotal, "__total")}
       </div>
     </div>
     <div class="block">
@@ -783,6 +837,7 @@ function openRecorder() {
       <div class="status" id="recStatus"></div>
       <div class="transcript placeholder" id="recText">${t("recPlaceholder")}</div>
       <div class="panel rows preview" id="recPreview" hidden></div>
+      <div class="hint rec-hint" id="recEditHint" hidden>${t("tapRowToEdit")}</div>
       <button class="mic" id="recMic" aria-label="${t("record")}">${MIC_ICON}</button>
       <form id="recForm" autocomplete="off">
         <input class="field" id="recInput" placeholder="${t("recType")}" enterkeyhint="done">
@@ -792,7 +847,39 @@ function openRecorder() {
     </div>`, cancelListening);
 
   $("#recMic").onclick = () => (recognizer ? stopListening() : startListening());
+  heardSource = "";
+  heardRows = [];
+  heardEditing = -1;
   $("#recInput").oninput = (event) => showHeard(event.target.value, false);
+  $("#recPreview").onclick = (event) => {
+    const remove = event.target.closest("[data-heard-remove]");
+    const toggle = event.target.closest("[data-heard-toggle]");
+    if (remove) {
+      heardRows[Number(remove.dataset.heardRemove)].removed = true;
+      heardEditing = -1;
+    } else if (toggle) {
+      const index = Number(toggle.dataset.heardToggle);
+      heardEditing = heardEditing === index ? -1 : index;
+    } else {
+      return;
+    }
+    renderHeardRows();
+    updateRecorderStatus(heardSource, false);
+  };
+  $("#recPreview").onchange = (event) => {
+    const category = event.target.closest("[data-heard-cat]");
+    const amount = event.target.closest("[data-heard-amount]");
+    if (category) {
+      heardRows[Number(category.dataset.heardCat)].cat = category.value;
+    }
+    if (amount) {
+      const value = parseLocalNumber(amount.value);
+      if (value > 0) {
+        heardRows[Number(amount.dataset.heardAmount)].amount = value;
+      }
+    }
+    renderHeardRows();
+  };
   $("#recForm").onsubmit = (event) => {
     event.preventDefault();
     commitHeard($("#recInput").value);
@@ -812,11 +899,60 @@ function openRecorder() {
 }
 
 // What the status line says when there is nothing to warn about.
-function recorderIdleStatus() {
+function recorderIdleStatus(found = 0) {
   if (recognizer) {
-    return t("listening");
+    return found ? t("listeningFound", { n: found }) : t("listening");
   }
   return Recognition ? "" : t("useKeyboardMic");
+}
+
+// Parsed rows in the record sheet. Edits and removals stick until the text itself changes.
+let heardSource = "";
+let heardRows = [];
+let heardEditing = -1;
+const REMOVE_ICON = `<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
+
+function heardRowHtml(expense, index) {
+  const editing = index === heardEditing;
+  const options = CATEGORY_NAMES
+    .map((cat) => `<option value="${cat}" ${cat === expense.cat ? "selected" : ""}>${catName(cat)}</option>`)
+    .join("");
+  const editor = editing
+    ? `<div class="heard-edit">
+        <select class="field" data-heard-cat="${index}" aria-label="${t("category")}">${options}</select>
+        <input class="field num" inputmode="decimal" data-heard-amount="${index}" value="${expense.amount}" aria-label="${t("amount")}">
+      </div>`
+    : "";
+  return `<div class="tx heard-row${editing ? " editing" : ""}">
+      ${markHtml(expense)}
+      <button class="body heard-toggle" data-heard-toggle="${index}" aria-expanded="${editing}">
+        <span class="title">${escapeHtml(expense.desc)}</span><span class="sub">${catName(expense.cat)} · ${dayLabel(expense.date)}</span>
+      </button>
+      <span class="amount num">${money(expense.amount)}</span>
+      <button class="heard-remove" data-heard-remove="${index}" aria-label="${t("removeRow")}">${REMOVE_ICON}</button>
+    </div>${editor}`;
+}
+
+function renderHeardRows() {
+  const preview = $("#recPreview");
+  const hint = $("#recEditHint");
+  const visible = heardRows.filter((row) => !row.removed).length;
+  preview.hidden = !visible;
+  hint.hidden = !visible;
+  preview.innerHTML = heardRows.map((row, index) => (row.removed ? "" : heardRowHtml(row, index))).join("");
+}
+
+function updateRecorderStatus(text, fromVoice) {
+  const status = $("#recStatus");
+  if (!status) {
+    return;
+  }
+  const found = heardRows.filter((row) => !row.removed).length;
+  if (!fromVoice) {
+    status.textContent = text.trim().length > 2 && !heardRows.length ? t("noAmount") : recorderIdleStatus(found);
+  } else if (recognizer) {
+    status.textContent = recorderIdleStatus(found);
+  }
 }
 
 function showHeard(text, fromVoice) {
@@ -829,23 +965,26 @@ function showHeard(text, fromVoice) {
     transcript.textContent = `“${text}”`;
     transcript.classList.remove("placeholder");
   }
-  const parsed = text ? parseExpenses(text) : [];
-  preview.hidden = !parsed.length;
-  const status = $("#recStatus");
-  if (!fromVoice && status) {
-    status.textContent = text.trim().length > 2 && !parsed.length ? t("noAmount") : recorderIdleStatus();
+  if (!preview) {
+    return;
   }
-  preview.innerHTML = parsed.map((e) => `<div class="tx">${markHtml(e)}
-      <span class="body"><div class="title">${escapeHtml(e.desc)}</div><div class="sub">${catName(e.cat)} · ${dayLabel(e.date)}</div></span>
-      <span class="amount num">${money(e.amount)}</span></div>`).join("");
+  if (text !== heardSource) {
+    heardSource = text;
+    heardRows = text ? parseExpenses(text) : [];
+    heardEditing = -1;
+  }
+  renderHeardRows();
+  updateRecorderStatus(text, fromVoice);
 }
 
 function commitHeard(text) {
   const spoken = text.trim();
-  const parsed = spoken ? parseExpenses(spoken) : [];
+  const edited = spoken && text === heardSource;
+  const parsed = edited ? heardRows.filter((row) => !row.removed) : spoken ? parseExpenses(spoken) : [];
   if (!parsed.length) {
     if ($("#recStatus")) {
-      $("#recStatus").textContent = spoken ? t("noAmount") : t("nothingYet");
+      const allRemoved = edited && heardRows.length;
+      $("#recStatus").textContent = spoken && !allRemoved ? t("noAmount") : t("nothingYet");
     }
     return;
   }
@@ -1013,6 +1152,27 @@ document.addEventListener("click", (event) => {
     closeSheet();
   }
 });
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-suggest]");
+  if (!button) {
+    return;
+  }
+  const value = Number(button.dataset.amount);
+  if (button.dataset.suggest === "__total") {
+    store.settings.budgetTotal = value;
+  } else {
+    store.settings.budgets[button.dataset.suggest] = value;
+  }
+  persist();
+  render();
+});
+
+// The sticky top bar gets a shadow once content scrolls under it.
+document.addEventListener("scroll", () => {
+  const scrolled = (window.scrollY || document.documentElement.scrollTop) > 4;
+  document.querySelector(".topbar")?.classList.toggle("scrolled", scrolled);
+}, { passive: true });
 
 document.addEventListener("change", (event) => {
   const field = event.target.closest("[data-budget]");
