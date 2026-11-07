@@ -1,6 +1,6 @@
 // Offline-first with background refresh: the app opens instantly from cache,
 // and any newer files are fetched and stored for the next launch.
-const VERSION = "tally-v7";
+const VERSION = "tally-v11";
 const FILES = ["./", "index.html", "app.css", "i18n.js", "app.js", "share.js", "parse.js", "manifest.json", "icon-180.png", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", (event) => {

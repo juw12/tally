@@ -617,7 +617,12 @@ function openShare() {
       </div>
       <label class="switch-row"><span>${t("hideAmounts")}</span><input type="checkbox" class="switch" id="shareHide" ${options.hideAmounts ? "checked" : ""}></label>
     </div>
-    <div class="share-preview"><canvas id="shareCanvas"></canvas></div>
+    <div class="share-preview">
+      <canvas id="shareCanvas"></canvas>
+      <button class="preview-expand" id="sharePreviewOpen" aria-label="${t("enlargePreview")}">
+        <svg viewBox="0 0 24 24"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>
+      </button>
+    </div>
     <div class="share-actions">
       <button class="btn secondary" id="shareSave">${t("saveImage")}</button>
       <button class="btn primary" id="shareSend">${t("shareImage")}</button>
@@ -629,6 +634,35 @@ function openShare() {
     canvas.classList.toggle("ink-dark", options.ink === "dark");
     drawShareCard(canvas, buildShareData(options.kind), options);
   };
+  const openLightbox = () => {
+    const canvas = $("#shareCanvas");
+    const box = document.createElement("div");
+    box.className = "lightbox";
+    box.setAttribute("role", "dialog");
+    box.setAttribute("aria-label", t("enlargePreview"));
+    const imageClass = [
+      options.theme === "transparent" ? "is-transparent" : "",
+      options.ink === "dark" ? "ink-dark" : "",
+    ].join(" ").trim();
+    box.innerHTML = `<img class="${imageClass}" alt="${t("shareTitle")}" src="${canvas.toDataURL("image/png")}">
+      <button class="btn secondary lightbox-close">${t("close")}</button>`;
+    const close = () => {
+      box.remove();
+      document.removeEventListener("keydown", onKey);
+    };
+    const onKey = (event) => {
+      if (event.key === "Escape") {
+        close();
+      }
+    };
+    box.onclick = close;
+    document.addEventListener("keydown", onKey);
+    document.body.append(box);
+    box.querySelector(".lightbox-close").focus();
+  };
+  $("#sharePreviewOpen").onclick = openLightbox;
+  $("#shareCanvas").onclick = openLightbox;
+
   const selectBackground = (value) => {
     options.theme = value;
     document.querySelectorAll("[data-bg]").forEach((b) => {
