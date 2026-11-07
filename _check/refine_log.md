@@ -49,3 +49,20 @@ Untested: real-phone voice and native share; transparent PNG in iOS/Instagram.
 | real-device testing | WebKit (Safari engine) smoke test added | renders, transparent PNG has clear corners, preview, typed entry |
 Gates: audit 77/77 screens, round-2 17/17, round-3 27/27, live check 8/8 + 6/6.
 Still untested: live speech recognition and native share on real phones; Instagram handling of the transparent sticker.
+| 2026-11-07 14:22 | council score | 8.6 | split: - | Pega-Vision=8.6, Pega-Thinking=9.35, GLM-5.3-Flash=8.6 |
+| 2026-11-07 14:53 | council score | 8.95 | split: - | Pega-Vision=8.6, Pega-Thinking=9.5, GLM-5.3-Flash=8.8 |
+| 2026-11-07 14:54 | council score | 9.25 | split: - | Pega-Vision=9.0, Pega-Thinking=9.5, GLM-5.3-Flash=x |
+| 2026-11-07 14:55 | council pair | B wins: True | votes A/B/tie 0/2/0 | council-judged (2 judges) |
+| 2026-11-07 14:57 | council score | 8.6 | split: - | Pega-Vision=8.75, Pega-Thinking=8.6, GLM-5.3-Flash=8.6 |
+
+
+## Precedent round (2026-11-07) - council-judged (3 judges), rubric v1 frozen
+Precedents: Toshl (today/pace marker on budget bars), Copilot/Monarch (empty states as calls to action), Strava story cards (keep content out of Instagram's ~250 px top/bottom UI zones). Notes in `_check/precedent/`.
+
+| round | change | gates | judge score | pairwise | kept? | note |
+|---|---|---|---|---|---|---|
+| v0 | baseline (main, SW v11), re-scored with first-run screens | all pass (story card content at y 150..1830, outside safe zone - measured) | 8.60 (8.75 / 8.6 / 8.6) | - | baseline | first run 9.25 had only 2 judges, discarded |
+| v1 | story safe zone (content y 267..1663, top 3 categories kept); today tick on every budget meter + one-line explanation; empty Overview/Activity/Categories get mic badge + "Log by voice" / "Add manually"; 4 new strings x 4 languages; SW v12 | audit 77/77, extra, round-2, round-3 (incl. WebKit), round-4 24/24 | 8.95 (8.6 / 9.5 / 8.8) | v1 wins 2-0 (Pega-Vision no vote) | KEPT (+0.35) | |
+
+Test-harness fixes this round: WebKit now bypasses the corporate proxy for 127.0.0.1 (it was returning 400 "Request on loopback from external IP").
+Open judge suggestions (not done): persistent "just saved" chip with Edit/Undo (GLM, both rounds); explicit mic-denied / no-speech-support messaging; Activity row spacing; Indonesian "TANPA TANGAN DENGAN SIRI" wording; currency-formatted budget inputs.

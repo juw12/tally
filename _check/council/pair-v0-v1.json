@@ -1,0 +1,48 @@
+{
+  "mode": "pair",
+  "models": [
+    "Pega-Vision",
+    "Pega-Thinking",
+    "GLM-5.3-Flash"
+  ],
+  "judges": {
+    "Pega-Vision": {
+      "picks_AB_BA": [
+        null,
+        null
+      ],
+      "vote": null,
+      "reasons": []
+    },
+    "Pega-Thinking": {
+      "picks_AB_BA": [
+        "B",
+        "B"
+      ],
+      "vote": "B",
+      "reasons": [
+        "VERSION 2 improves on VERSION 1 with concrete, visible enhancements: empty states become calls-to-action with mic badge and dual buttons (boosting S5), Story share cards respect Instagram/TikTok UI-free zones (boosting S4), and budget meters add a 'today' pace tick (boosting S3). S1 and S2 remain tied as the base visuals and capture flow are identical.",
+        "VERSION 1 improves on VERSION 2 with enhanced empty states (mic badge + 'Log by voice'/'Add manually' buttons ≥44 px), Story share cards that respect Instagram/TikTok UI-free zones, and budget pace markers with explanatory notes—directly strengthening S1, S4, and S5."
+      ]
+    },
+    "GLM-5.3-Flash": {
+      "picks_AB_BA": [
+        "B",
+        "B"
+      ],
+      "vote": "B",
+      "reasons": [
+        "Version 2 contains everything in Version 1 plus rubric-relevant improvements visible in its screenshots: story-card content moved into the platform safe zone (S4), a today/pace tick on budget meters (S3), and actionable empty states with mic badge and 'Log by voice'/'Add manually' CTAs that strengthen capture entry and graceful empty handling (S1, S2, S5), with no visible regressions.",
+        "The versions are otherwise identical, but Version 1's visible improvements map directly to the rubric: its empty states add a mic badge with one-tap 'Log by voice'/'Add manually' CTAs (strengthening S2 capture flow and S5 graceful empty states), and its Story card insets content within the story safe zone whereas Version 2's header/footer sit where Instagram/TikTok profile and reply UI would overlap (S4). No regressions are apparent in Version 1's changes."
+      ]
+    }
+  },
+  "votes": {
+    "A": 0,
+    "B": 2,
+    "tie": 0
+  },
+  "quorum": 2,
+  "b_wins": true,
+  "label": "council-judged (2 judges)"
+}
