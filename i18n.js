@@ -95,7 +95,7 @@ const STRINGS = {
     vsAvg30: "vs your 30-day daily average", daysUnderBudget: "Days under budget", loggingStreak: "Logging streak",
     daysN: "{n} days", dayN: "1 day", daysLogged: "Days logged", topCategory: "Top category",
     budgetPace: "Budget pace", spentLine: "Spent", cardFooter: "Tracked by voice with Tally",
-    showAll: "Show all", lastBackup: "Last backup: {date}", noBackup: "No backup yet. Download one now and then.", storageFull: "Couldn't save: storage is full. Download a backup.",
+    showAll: "Show all", lastBackup: "Last backup: {date}", noBackup: "No backup yet. Download one now and then.", mintTitle: "Tally is now part of Mint", mintBody: "Same voice entry, plus budgets, investing and a marketplace. Your Tally expenses come along with one tap.", mintOpen: "Open Mint", mintLater: "Not now", storageFull: "Couldn't save: storage is full. Download a backup.",
   },
 
   id: {
@@ -155,7 +155,7 @@ const STRINGS = {
     vsAvg30: "dibanding rata-rata harian 30 hari", daysUnderBudget: "Hari di bawah anggaran", loggingStreak: "Rentetan pencatatan",
     daysN: "{n} hari", dayN: "1 hari", daysLogged: "Hari tercatat", topCategory: "Kategori teratas",
     budgetPace: "Laju anggaran", spentLine: "Terpakai", cardFooter: "Dicatat dengan suara di Tally",
-    showAll: "Tampilkan semua", lastBackup: "Cadangan terakhir: {date}", noBackup: "Belum ada cadangan. Unduh sesekali.", storageFull: "Gagal menyimpan: penyimpanan penuh. Unduh cadangan.",
+    showAll: "Tampilkan semua", lastBackup: "Cadangan terakhir: {date}", noBackup: "Belum ada cadangan. Unduh sesekali.", mintTitle: "Tally kini bagian dari Mint", mintBody: "Catat dengan suara tetap sama, ditambah anggaran, investasi, dan marketplace. Pengeluaran Tally ikut pindah dengan satu ketukan.", mintOpen: "Buka Mint", mintLater: "Nanti", storageFull: "Gagal menyimpan: penyimpanan penuh. Unduh cadangan.",
   },
 
   "zh-Hant": {
@@ -215,7 +215,7 @@ const STRINGS = {
     vsAvg30: "相較 30 天日均", daysUnderBudget: "未超預算天數", loggingStreak: "連續記帳",
     daysN: "{n} 天", dayN: "1 天", daysLogged: "記帳天數", topCategory: "最大類別",
     budgetPace: "預算進度", spentLine: "已花費", cardFooter: "用 Tally 語音記帳",
-    showAll: "顯示全部", lastBackup: "上次備份：{date}", noBackup: "尚未備份，建議不定期下載備份。", storageFull: "無法儲存：儲存空間已滿，請下載備份。",
+    showAll: "顯示全部", lastBackup: "上次備份：{date}", noBackup: "尚未備份，建議不定期下載備份。", mintTitle: "Tally 現在是 Mint 的一部分", mintBody: "一樣能用語音記帳，還多了預算、投資和市集。你的 Tally 支出一鍵帶過去。", mintOpen: "開啟 Mint", mintLater: "稍後", storageFull: "無法儲存：儲存空間已滿，請下載備份。",
   },
 
   "zh-Hans": {
@@ -275,7 +275,7 @@ const STRINGS = {
     vsAvg30: "相比 30 天日均", daysUnderBudget: "未超预算天数", loggingStreak: "连续记账",
     daysN: "{n} 天", dayN: "1 天", daysLogged: "记账天数", topCategory: "最大类别",
     budgetPace: "预算进度", spentLine: "已花费", cardFooter: "用 Tally 语音记账",
-    showAll: "显示全部", lastBackup: "上次备份：{date}", noBackup: "尚未备份，建议不定期下载备份。", storageFull: "无法保存：存储空间已满，请下载备份。",
+    showAll: "显示全部", lastBackup: "上次备份：{date}", noBackup: "尚未备份，建议不定期下载备份。", mintTitle: "Tally 现在是 Mint 的一部分", mintBody: "一样能用语音记账，还多了预算、投资和市集。你的 Tally 支出一键带过去。", mintOpen: "打开 Mint", mintLater: "稍后", storageFull: "无法保存：存储空间已满，请下载备份。",
   },
 };
 
