@@ -346,3 +346,10 @@ select.field { width: auto; }
   #txList .tx { padding-top: 14px; padding-bottom: 14px; }
   #txList .day-head { margin-top: 26px; }
 }
+
+/* Tally is now part of Mint */
+.mint-card { margin-top: 18px; padding: 14px 16px; border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--line); }
+.mint-card strong { display: block; font-size: 15px; font-weight: 650; }
+.mint-card p { margin: 4px 0 12px; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.mint-actions { display: flex; gap: 8px; }
+.mint-actions .btn { padding: 10px; }

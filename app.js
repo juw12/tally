@@ -237,6 +237,26 @@ function emptyStateHtml(title, hint, style = "") {
 }
 
 // ---------- Overview ----------
+// Tally is now part of Mint (same site, so Mint can import these expenses with one tap).
+const MINT_URL = "https://juw12.github.io/projects/mint/budget/?from=tally";
+function mintCardHtml() {
+  if (demoMode || store.settings.mintCardHidden || !store.expenses.length) {
+    return "";
+  }
+  return `<div class="mint-card">
+    <div><strong>${escapeHtml(t("mintTitle"))}</strong><p>${escapeHtml(t("mintBody"))}</p></div>
+    <div class="mint-actions"><a class="btn primary" href="${MINT_URL}">${escapeHtml(t("mintOpen"))}</a>
+    <button type="button" class="btn secondary" data-mint-later>${escapeHtml(t("mintLater"))}</button></div>
+  </div>`;
+}
+document.addEventListener("click", (event) => {
+  if (event.target.closest("[data-mint-later]")) {
+    store.settings.mintCardHidden = true;
+    persist();
+    render();
+  }
+});
+
 function renderOverview() {
   const range = rangeFor(ui.period, ui.anchor);
   const current = summarize(range);
@@ -255,6 +275,7 @@ function renderOverview() {
   const previousTotal = sum(store.expenses.filter((e) => inRange(e, previousRange)));
 
   view.innerHTML = [
+    mintCardHtml(),
     justAddedHtml(),
     heroHtml(current, previousTotal),
     statsHtml(current),
